@@ -9,8 +9,14 @@ edition = "2018"
 [dependencies]
 rustbus = "0.1.0"
 dbus = "0.8.1"
+
+dbus-bytestream = "0.1.4"
+dbus-serialize = "0.1.2"
+
 zvariant = {git = "https://gitlab.freedesktop.org/zeenix/zbus", version = "^2"}
 zbus = {git = "https://gitlab.freedesktop.org/zeenix/zbus"}
+
+dbus-pure = {git = "https://github.com/Arnavion/dbus-pure", version = "0.1.0"}
 
 [dev-dependencies]
 criterion = "0.3"

@@ -132,6 +132,84 @@ fn make_zvariant_message() -> zvariant::Structure {
     body
 }
 
+fn make_dbus_bytestream_message() -> dbus_bytestream::message::Message {
+    let mut msg = dbus_bytestream::message::create_signal(
+        "io.killing.spark",
+        "TestSignal",
+        "/io/killing/spark",
+    );
+
+    let mut map = std::collections::HashMap::new();
+    map.insert(
+        dbus_serialize::types::BasicValue::String("A".into()),
+        dbus_serialize::types::Value::BasicValue(dbus_serialize::types::BasicValue::Int32(
+            1234567i32,
+        )),
+    );
+    map.insert(
+        dbus_serialize::types::BasicValue::String("B".into()),
+        dbus_serialize::types::Value::BasicValue(dbus_serialize::types::BasicValue::Int32(
+            1234567i32,
+        )),
+    );
+    map.insert(
+        dbus_serialize::types::BasicValue::String("C".into()),
+        dbus_serialize::types::Value::BasicValue(dbus_serialize::types::BasicValue::Int32(
+            1234567i32,
+        )),
+    );
+    map.insert(
+        dbus_serialize::types::BasicValue::String("D".into()),
+        dbus_serialize::types::Value::BasicValue(dbus_serialize::types::BasicValue::Int32(
+            1234567i32,
+        )),
+    );
+    map.insert(
+        dbus_serialize::types::BasicValue::String("E".into()),
+        dbus_serialize::types::Value::BasicValue(dbus_serialize::types::BasicValue::Int32(
+            1234567i32,
+        )),
+    );
+
+    let array = vec![
+        dbus_serialize::types::Value::BasicValue(dbus_serialize::types::BasicValue::Uint64(
+            0xFFFFFFFFFFFFFFFFu64,
+        )),
+        dbus_serialize::types::Value::BasicValue(dbus_serialize::types::BasicValue::Uint64(
+            0xFFFFFFFFFFFFFFFFu64,
+        )),
+        dbus_serialize::types::Value::BasicValue(dbus_serialize::types::BasicValue::Uint64(
+            0xFFFFFFFFFFFFFFFFu64,
+        )),
+        dbus_serialize::types::Value::BasicValue(dbus_serialize::types::BasicValue::Uint64(
+            0xFFFFFFFFFFFFFFFFu64,
+        )),
+        dbus_serialize::types::Value::BasicValue(dbus_serialize::types::BasicValue::Uint64(
+            0xFFFFFFFFFFFFFFFFu64,
+        )),
+    ];
+
+    for _ in 0..10 {
+        msg = msg.add_arg(&"TesttestTesttest");
+        msg = msg.add_arg(&0xFFFFFFFFFFFFFFFFu64);
+        msg = msg.add_arg(&dbus_serialize::types::Struct {
+            objects: vec![
+                dbus_serialize::types::Value::BasicValue(
+                    dbus_serialize::types::BasicValue::Uint64(0xFFFFFFFFFFFFFFFFu64),
+                ),
+                dbus_serialize::types::Value::BasicValue(
+                    dbus_serialize::types::BasicValue::String("TesttestTesttest".into()),
+                ),
+            ],
+            signature: dbus_serialize::types::Signature("ts".to_owned()),
+        });
+        msg = msg.add_arg(&map);
+        msg = msg.add_arg(&array);
+    }
+
+    msg
+}
+
 fn criterion_benchmark(c: &mut Criterion) {
     //
     // This tests only marshalling speed
@@ -150,6 +228,16 @@ fn criterion_benchmark(c: &mut Criterion) {
     c.bench_function("marshal_dbusrs", |b| {
         b.iter(|| {
             let msg = make_dbusrs_message();
+            return msg;
+        })
+    });
+    c.bench_function("marshal_dbus_bytestream", |b| {
+        b.iter(|| {
+            let msg = make_dbus_bytestream_message();
+            let mut buf = Vec::new();
+
+            use dbus_bytestream::marshal::Marshal;
+            msg.dbus_encode(&mut buf);
             return msg;
         })
     });
@@ -193,6 +281,13 @@ fn criterion_benchmark(c: &mut Criterion) {
             use dbus::channel::Sender;
             let conn = dbus::blocking::Connection::new_session().unwrap();
             let msg = make_dbusrs_message();
+            conn.send(msg).unwrap();
+        })
+    });
+    c.bench_function("send_dbus_bytestream", |b| {
+        b.iter(|| {
+            let conn = dbus_bytestream::connection::Connection::connect_system().unwrap();
+            let msg = make_dbus_bytestream_message();
             conn.send(msg).unwrap();
         })
     });
