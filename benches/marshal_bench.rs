@@ -286,7 +286,7 @@ fn criterion_benchmark(c: &mut Criterion) {
     });
     c.bench_function("send_dbus_bytestream", |b| {
         b.iter(|| {
-            let conn = dbus_bytestream::connection::Connection::connect_system().unwrap();
+            let conn = dbus_bytestream::connection::Connection::connect_session().unwrap();
             let msg = make_dbus_bytestream_message();
             conn.send(msg).unwrap();
         })
