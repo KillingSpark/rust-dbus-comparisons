@@ -21,7 +21,7 @@ To replicate these results just run: cargo bench. That will run all benchmarks.
 
 | Library         | Marshal                                 | Marshal + Send                          |
 |-----------------|-----------------------------------------|-----------------------------------------|
-| rustbus         | time:   [41.016 us 41.042 us 41.068 us] | [373.74 us 380.67 us 387.95 us]         |
+| rustbus         | time:   [41.016 us 41.042 us 41.068 us] | time:   [373.74 us 380.67 us 387.95 us] |
 | zvariant        | time:   [38.798 us 38.834 us 38.878 us] |                                         |
-| dbus-rs         | time:   [249.86 us 250.22 us 250.63 us] | [1.1603 ms 1.2399 ms 1.3128 ms]         |
+| dbus-rs         | time:   [249.86 us 250.22 us 250.63 us] | time:   [1.1603 ms 1.2399 ms 1.3128 ms] |
 | dbus-bytestream | time:   [26.533 us 26.589 us 26.648 us] | time:   [526.02 us 538.09 us 550.37 us] |
