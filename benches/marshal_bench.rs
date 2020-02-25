@@ -4,6 +4,8 @@ use rustbus::message::DictMap;
 use rustbus::message::Param;
 use rustbus::wire::marshal::marshal;
 
+const MESSAGE_SIZE: usize = 19;
+
 fn marsh(msg: &rustbus::Message, buf: &mut Vec<u8>) {
     marshal(msg, rustbus::message::ByteOrder::LittleEndian, &[], buf).unwrap();
 }
@@ -31,7 +33,7 @@ fn make_rustbus_message() -> rustbus::Message {
     .unwrap()
     .into();
 
-    for _ in 0..10 {
+    for _ in 0..MESSAGE_SIZE {
         params.push("TesttestTesttest".to_owned().into());
         params.push(0xFFFFFFFFFFFFFFFFu64.into());
         params.push(
@@ -98,7 +100,7 @@ fn make_dbus_message_parser_message() -> dbus_message_parser::Message {
         "t".to_owned(),
     );
 
-    for _ in 0..10 {
+    for _ in 0..MESSAGE_SIZE {
         signal.add_value(dbus_message_parser::Value::Uint64(0xFFFFFFFFFFFFFFFFu64));
         signal.add_value(dbus_message_parser::Value::String(
             "TesttestTesttest".into(),
@@ -139,7 +141,7 @@ fn make_dbusrs_message() -> dbus::Message {
         0xFFFFFFFFFFFFFFFFu64,
     ]);
 
-    for _ in 0..10 {
+    for _ in 0..MESSAGE_SIZE {
         msg = msg.append3(
             "TesttestTesttest",
             0xFFFFFFFFFFFFFFFFu64,
@@ -176,7 +178,7 @@ fn make_zvariant_message() -> zvariant::Structure {
     struct_field = struct_field.add_field(0xFFFFFFFFFFFFFFFFu64);
     struct_field = struct_field.add_field("TesttestTesttest");
 
-    for _ in 0..10 {
+    for _ in 0..MESSAGE_SIZE {
         body = body.add_field("TesttestTesttest");
         body = body.add_field(0xFFFFFFFFFFFFFFFFu64);
         body = body.add_field(struct_field.clone());
@@ -245,7 +247,7 @@ fn make_dbus_bytestream_message() -> dbus_bytestream::message::Message {
         )),
     ];
 
-    for _ in 0..10 {
+    for _ in 0..MESSAGE_SIZE {
         msg = msg.add_arg(&"TesttestTesttest");
         msg = msg.add_arg(&0xFFFFFFFFFFFFFFFFu64);
         msg = msg.add_arg(&dbus_serialize::types::Struct {
