@@ -94,6 +94,44 @@ fn make_dbusrs_message() -> dbus::Message {
     msg
 }
 
+fn make_zvariant_message() -> zvariant::Structure {
+    let mut body = zvariant::Structure::new();
+    let mut struct_field = zvariant::Structure::new();
+
+    let mut map = std::collections::HashMap::new();
+    map.insert("A".to_owned(), 1234567i32);
+    map.insert("B".to_owned(), 1234567i32);
+    map.insert("C".to_owned(), 1234567i32);
+    map.insert("D".to_owned(), 1234567i32);
+    map.insert("E".to_owned(), 1234567i32);
+
+    let dict = zvariant::Dict::from(map);
+    use std::convert::TryFrom;
+    let dict_arr = zvariant::Array::try_from(dict).unwrap();
+
+    let array = zvariant::Array::from(vec![
+        0xFFFFFFFFFFFFFFFFu64,
+        0xFFFFFFFFFFFFFFFFu64,
+        0xFFFFFFFFFFFFFFFFu64,
+        0xFFFFFFFFFFFFFFFFu64,
+        0xFFFFFFFFFFFFFFFFu64,
+    ]);
+
+    struct_field = struct_field.add_field(0xFFFFFFFFFFFFFFFFu64);
+    struct_field = struct_field.add_field("TesttestTesttest");
+
+    for _ in 0..10 {
+        body = body.add_field("TesttestTesttest");
+        body = body.add_field(0xFFFFFFFFFFFFFFFFu64);
+        body = body.add_field(struct_field.clone());
+        // TODO is this really the most efficient way?
+        body = body.add_field(dict_arr.clone());
+        body = body.add_field(array.clone());
+    }
+
+    body
+}
+
 fn criterion_benchmark(c: &mut Criterion) {
     //
     // This tests only marshalling speed
@@ -115,7 +153,20 @@ fn criterion_benchmark(c: &mut Criterion) {
             return msg;
         })
     });
-
+    c.bench_function("marshal_zvariant", |b| {
+        b.iter(|| {
+            let body = make_zvariant_message();
+            let msg = zbus::Message::method(
+                Some("io.killing.spark"),
+                "/io/killing/spark",
+                Some("io.killing.spark"),
+                "TestSignal",
+                Some(body),
+            )
+            .unwrap();
+            return msg;
+        })
+    });
 
     //
     // This tests the flow of:
@@ -128,9 +179,12 @@ fn criterion_benchmark(c: &mut Criterion) {
             let mut rustbus_con = rustbus::client_conn::Conn::connect_to_bus(
                 rustbus::get_session_bus_path().unwrap(),
                 false,
-            ).unwrap();
+            )
+            .unwrap();
             let msg = make_rustbus_message();
-            rustbus_con.send_message(rustbus::standard_messages::hello(), None).unwrap();
+            rustbus_con
+                .send_message(rustbus::standard_messages::hello(), None)
+                .unwrap();
             rustbus_con.send_message(msg, None).unwrap();
         })
     });
@@ -142,6 +196,23 @@ fn criterion_benchmark(c: &mut Criterion) {
             conn.send(msg).unwrap();
         })
     });
+    // currently this does a lot of println so it is not a fair comparison
+    //c.bench_function("send_zvariant", |b| {
+    //    b.iter(|| {
+    //        let mut con = zbus::Connection::new_session().unwrap();
+    //        let body = make_zvariant_message();
+    //        // this crate does not yet support signals so we send a call to a nonexistent service
+    //        assert!(con
+    //            .call_method(
+    //                Some("io.killing.spark"),
+    //                "/io/killing/spark",
+    //                Some("io.killing.spark"),
+    //                "TestSignal",
+    //                Some(body),
+    //            )
+    //            .is_err());
+    //    })
+    //});
 }
 
 criterion_group!(benches, criterion_benchmark);
