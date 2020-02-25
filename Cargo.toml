@@ -1,0 +1,18 @@
+[package]
+name = "dbus_benches"
+version = "0.1.0"
+authors = ["Moritz Borcherding <moritz.borcherding@web.de>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+rustbus = "0.1.0"
+dbus = "0.8.1"
+
+[dev-dependencies]
+criterion = "0.3"
+
+[[bench]]
+name = "marshal_bench"
+harness = false
