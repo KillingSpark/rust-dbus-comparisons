@@ -3,8 +3,6 @@ use rustbus::message::Container;
 use rustbus::message::DictMap;
 use rustbus::message::Param;
 use rustbus::wire::marshal::marshal;
-use rustbus::wire::unmarshal::unmarshal_header;
-use rustbus::wire::unmarshal::unmarshal_next_message;
 
 fn marsh(msg: &rustbus::Message, buf: &mut Vec<u8>) {
     marshal(msg, rustbus::message::ByteOrder::LittleEndian, &[], buf).unwrap();

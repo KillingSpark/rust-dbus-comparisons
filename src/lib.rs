@@ -1,7 +1,3 @@
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn it_works() {
-        assert_eq!(2 + 2, 4);
-    }
-}
+//! Nothing in the source
+//! 
+//! This is a benchmark repo, all relevant source is in $REPO/benches
