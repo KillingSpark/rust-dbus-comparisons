@@ -29,6 +29,16 @@ fn make_rustbus_message() -> rustbus::Message {
         0xFFFFFFFFFFFFFFFFu64.into(),
         0xFFFFFFFFFFFFFFFFu64.into(),
         0xFFFFFFFFFFFFFFFFu64.into(),
+        0xFFFFFFFFFFFFFFFFu64.into(),
+        0xFFFFFFFFFFFFFFFFu64.into(),
+        0xFFFFFFFFFFFFFFFFu64.into(),
+        0xFFFFFFFFFFFFFFFFu64.into(),
+        0xFFFFFFFFFFFFFFFFu64.into(),
+        0xFFFFFFFFFFFFFFFFu64.into(),
+        0xFFFFFFFFFFFFFFFFu64.into(),
+        0xFFFFFFFFFFFFFFFFu64.into(),
+        0xFFFFFFFFFFFFFFFFu64.into(),
+        0xFFFFFFFFFFFFFFFFu64.into(),
     ])
     .unwrap()
     .into();
@@ -96,6 +106,16 @@ fn make_dbus_message_parser_message() -> dbus_message_parser::Message {
             dbus_message_parser::Value::Uint64(0xFFFFFFFFFFFFFFFFu64),
             dbus_message_parser::Value::Uint64(0xFFFFFFFFFFFFFFFFu64),
             dbus_message_parser::Value::Uint64(0xFFFFFFFFFFFFFFFFu64),
+            dbus_message_parser::Value::Uint64(0xFFFFFFFFFFFFFFFFu64),
+            dbus_message_parser::Value::Uint64(0xFFFFFFFFFFFFFFFFu64),
+            dbus_message_parser::Value::Uint64(0xFFFFFFFFFFFFFFFFu64),
+            dbus_message_parser::Value::Uint64(0xFFFFFFFFFFFFFFFFu64),
+            dbus_message_parser::Value::Uint64(0xFFFFFFFFFFFFFFFFu64),
+            dbus_message_parser::Value::Uint64(0xFFFFFFFFFFFFFFFFu64),
+            dbus_message_parser::Value::Uint64(0xFFFFFFFFFFFFFFFFu64),
+            dbus_message_parser::Value::Uint64(0xFFFFFFFFFFFFFFFFu64),
+            dbus_message_parser::Value::Uint64(0xFFFFFFFFFFFFFFFFu64),
+            dbus_message_parser::Value::Uint64(0xFFFFFFFFFFFFFFFFu64),
         ],
         "t".to_owned(),
     );
@@ -139,6 +159,16 @@ fn make_dbusrs_message() -> dbus::Message {
         0xFFFFFFFFFFFFFFFFu64,
         0xFFFFFFFFFFFFFFFFu64,
         0xFFFFFFFFFFFFFFFFu64,
+        0xFFFFFFFFFFFFFFFFu64,
+        0xFFFFFFFFFFFFFFFFu64,
+        0xFFFFFFFFFFFFFFFFu64,
+        0xFFFFFFFFFFFFFFFFu64,
+        0xFFFFFFFFFFFFFFFFu64,
+        0xFFFFFFFFFFFFFFFFu64,
+        0xFFFFFFFFFFFFFFFFu64,
+        0xFFFFFFFFFFFFFFFFu64,
+        0xFFFFFFFFFFFFFFFFu64,
+        0xFFFFFFFFFFFFFFFFu64,
     ]);
 
     for _ in 0..MESSAGE_SIZE {
@@ -168,6 +198,16 @@ fn make_zvariant_message() -> zvariant::Structure {
     let dict_arr = zvariant::Array::try_from(dict).unwrap();
 
     let array = zvariant::Array::from(vec![
+        0xFFFFFFFFFFFFFFFFu64,
+        0xFFFFFFFFFFFFFFFFu64,
+        0xFFFFFFFFFFFFFFFFu64,
+        0xFFFFFFFFFFFFFFFFu64,
+        0xFFFFFFFFFFFFFFFFu64,
+        0xFFFFFFFFFFFFFFFFu64,
+        0xFFFFFFFFFFFFFFFFu64,
+        0xFFFFFFFFFFFFFFFFu64,
+        0xFFFFFFFFFFFFFFFFu64,
+        0xFFFFFFFFFFFFFFFFu64,
         0xFFFFFFFFFFFFFFFFu64,
         0xFFFFFFFFFFFFFFFFu64,
         0xFFFFFFFFFFFFFFFFu64,
@@ -230,6 +270,36 @@ fn make_dbus_bytestream_message() -> dbus_bytestream::message::Message {
     );
 
     let array = vec![
+        dbus_serialize::types::Value::BasicValue(dbus_serialize::types::BasicValue::Uint64(
+            0xFFFFFFFFFFFFFFFFu64,
+        )),
+        dbus_serialize::types::Value::BasicValue(dbus_serialize::types::BasicValue::Uint64(
+            0xFFFFFFFFFFFFFFFFu64,
+        )),
+        dbus_serialize::types::Value::BasicValue(dbus_serialize::types::BasicValue::Uint64(
+            0xFFFFFFFFFFFFFFFFu64,
+        )),
+        dbus_serialize::types::Value::BasicValue(dbus_serialize::types::BasicValue::Uint64(
+            0xFFFFFFFFFFFFFFFFu64,
+        )),
+        dbus_serialize::types::Value::BasicValue(dbus_serialize::types::BasicValue::Uint64(
+            0xFFFFFFFFFFFFFFFFu64,
+        )),
+        dbus_serialize::types::Value::BasicValue(dbus_serialize::types::BasicValue::Uint64(
+            0xFFFFFFFFFFFFFFFFu64,
+        )),
+        dbus_serialize::types::Value::BasicValue(dbus_serialize::types::BasicValue::Uint64(
+            0xFFFFFFFFFFFFFFFFu64,
+        )),
+        dbus_serialize::types::Value::BasicValue(dbus_serialize::types::BasicValue::Uint64(
+            0xFFFFFFFFFFFFFFFFu64,
+        )),
+        dbus_serialize::types::Value::BasicValue(dbus_serialize::types::BasicValue::Uint64(
+            0xFFFFFFFFFFFFFFFFu64,
+        )),
+        dbus_serialize::types::Value::BasicValue(dbus_serialize::types::BasicValue::Uint64(
+            0xFFFFFFFFFFFFFFFFu64,
+        )),
         dbus_serialize::types::Value::BasicValue(dbus_serialize::types::BasicValue::Uint64(
             0xFFFFFFFFFFFFFFFFu64,
         )),
