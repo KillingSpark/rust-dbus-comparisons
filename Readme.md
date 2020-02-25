@@ -6,11 +6,12 @@ This repo tries to give an overview over the landscape of the the different dbus
 1. https://gitlab.freedesktop.org/zeenix/zbus/
 1. https://github.com/Arnavion/dbus-pure
 1. https://github.com/srwalter/dbus-bytestream
+1. https://github.com/LinkTed/dbus-message-parser
 
 Note that I am the author of rustbus, but of course I am trying to be as objectiv as possible here.
 
 ## Current state
-Benchmarks for rustbus and dbus-rs exist. I plan to add equivalent ones for the others.
+Some benchmarks exist. I plan to add equivalent ones for the missing libs, and more kinds of benchmarks.
 
 ## The benchmarks
 1. Marshal: Build a signal message and marshal it

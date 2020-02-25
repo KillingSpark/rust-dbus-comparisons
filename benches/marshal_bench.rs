@@ -57,6 +57,62 @@ fn make_rustbus_message() -> rustbus::Message {
     msg
 }
 
+fn make_dbus_message_parser_message() -> dbus_message_parser::Message {
+    let mut signal =
+        dbus_message_parser::Message::signal("/io/killing/spark", "io.killing.spark", "TestSignal");
+
+    let dict = dbus_message_parser::Value::Array(
+        vec![
+            dbus_message_parser::Value::DictEntry(Box::new((
+                dbus_message_parser::Value::String("A".to_owned()),
+                dbus_message_parser::Value::Int32(1234567i32),
+            ))),
+            dbus_message_parser::Value::DictEntry(Box::new((
+                dbus_message_parser::Value::String("B".to_owned()),
+                dbus_message_parser::Value::Int32(1234567i32),
+            ))),
+            dbus_message_parser::Value::DictEntry(Box::new((
+                dbus_message_parser::Value::String("C".to_owned()),
+                dbus_message_parser::Value::Int32(1234567i32),
+            ))),
+            dbus_message_parser::Value::DictEntry(Box::new((
+                dbus_message_parser::Value::String("D".to_owned()),
+                dbus_message_parser::Value::Int32(1234567i32),
+            ))),
+            dbus_message_parser::Value::DictEntry(Box::new((
+                dbus_message_parser::Value::String("E".to_owned()),
+                dbus_message_parser::Value::Int32(1234567i32),
+            ))),
+        ],
+        "{si}".into(),
+    );
+
+    let array = dbus_message_parser::Value::Array(
+        vec![
+            dbus_message_parser::Value::Uint64(0xFFFFFFFFFFFFFFFFu64),
+            dbus_message_parser::Value::Uint64(0xFFFFFFFFFFFFFFFFu64),
+            dbus_message_parser::Value::Uint64(0xFFFFFFFFFFFFFFFFu64),
+            dbus_message_parser::Value::Uint64(0xFFFFFFFFFFFFFFFFu64),
+            dbus_message_parser::Value::Uint64(0xFFFFFFFFFFFFFFFFu64),
+        ],
+        "t".to_owned(),
+    );
+
+    for _ in 0..10 {
+        signal.add_value(dbus_message_parser::Value::Uint64(0xFFFFFFFFFFFFFFFFu64));
+        signal.add_value(dbus_message_parser::Value::String(
+            "TesttestTesttest".into(),
+        ));
+        signal.add_value(dbus_message_parser::Value::Struct(vec![
+            dbus_message_parser::Value::Uint64(0xFFFFFFFFFFFFFFFFu64),
+            dbus_message_parser::Value::String("TesttestTesttest".into()),
+        ]));
+        signal.add_value(dict.clone());
+        signal.add_value(array.clone());
+    }
+    signal
+}
+
 fn make_dbusrs_message() -> dbus::Message {
     let mut msg = dbus::message::Message::signal(
         &dbus::strings::Path::from("/io/killing/spark"),
@@ -239,6 +295,14 @@ fn criterion_benchmark(c: &mut Criterion) {
             use dbus_bytestream::marshal::Marshal;
             msg.dbus_encode(&mut buf);
             return msg;
+        })
+    });
+    c.bench_function("marshal_dbus_message_parser", |b| {
+        b.iter(|| {
+            let signal = make_dbus_message_parser_message();
+            let mut buffer = bytes::BytesMut::new();
+            signal.encode(&mut buffer).unwrap();
+            return signal;
         })
     });
     c.bench_function("marshal_zvariant", |b| {
