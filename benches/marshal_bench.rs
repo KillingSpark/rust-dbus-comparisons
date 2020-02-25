@@ -97,6 +97,11 @@ fn make_dbusrs_message() -> dbus::Message {
 }
 
 fn criterion_benchmark(c: &mut Criterion) {
+    //
+    // This tests only marshalling speed
+    // I think that libdbus and by that dbus-rs marshal values as they are added
+    // so just creating the message is equivalent to create+marshal in rustbus?
+    //
     c.bench_function("marshal_rustbus", |b| {
         b.iter(|| {
             let msg = make_rustbus_message();
@@ -112,6 +117,14 @@ fn criterion_benchmark(c: &mut Criterion) {
             return msg;
         })
     });
+
+
+    //
+    // This tests the flow of:
+    // 1. Connect to the session bus (which needs a hello message, which is implicit for dbus-rs)
+    // 2. Create a signal message
+    // 3. Send the signal to the bus
+    //
     c.bench_function("send_rustbus", |b| {
         b.iter(|| {
             let mut rustbus_con = rustbus::client_conn::Conn::connect_to_bus(
