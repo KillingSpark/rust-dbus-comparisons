@@ -30,3 +30,4 @@ To replicate these results just run: cargo bench. That will run all benchmarks.
 | dbus-rs             | time:   [499.33 us 502.18 us 505.45 us] | time:   [1.2374 ms 1.2951 ms 1.3533 ms] |
 | dbus-bytestream     | time:   [64.859 us 65.127 us 65.439 us] | time:   [462.18 us 469.83 us 478.73 us] |
 | dbus-message-parser | time:   [171.56 us 172.28 us 173.10 us] |                                         |
+| dbus-pure           | time:   [101.80 us 102.22 us 102.73 us] |                                         |
