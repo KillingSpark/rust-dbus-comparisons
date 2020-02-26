@@ -400,16 +400,19 @@ fn criterion_benchmark(c: &mut Criterion) {
     //
     c.bench_function("send_rustbus", |b| {
         b.iter(|| {
-            let mut rustbus_con = rustbus::client_conn::Conn::connect_to_bus(
-                rustbus::get_session_bus_path().unwrap(),
-                false,
-            )
-            .unwrap();
+            let mut rustbus_con = rustbus::client_conn::RpcConn::new(
+                rustbus::client_conn::Conn::connect_to_bus(
+                    rustbus::get_session_bus_path().unwrap(),
+                    false,
+                )
+                .unwrap(),
+            );
             let msg = make_rustbus_message();
-            rustbus_con
+            let serial = rustbus_con
                 .send_message(rustbus::standard_messages::hello(), None)
-                .unwrap();
-            rustbus_con.send_message(msg, None).unwrap();
+                .unwrap().serial.unwrap();
+            let _name_resp = rustbus_con.wait_response(serial, None).unwrap();
+            let _serial = rustbus_con.send_message(msg, None).unwrap();
         })
     });
     c.bench_function("send_dbusrs", |b| {
