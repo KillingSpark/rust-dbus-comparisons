@@ -7,7 +7,7 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-rustbus = "0.1.0"
+rustbus = "0.1.1"
 dbus = "0.8.1"
 
 dbus-bytestream = "0.1.4"

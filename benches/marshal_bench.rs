@@ -1,7 +1,7 @@
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
-use rustbus::message::Container;
-use rustbus::message::DictMap;
-use rustbus::message::Param;
+use rustbus::params::Container;
+use rustbus::params::DictMap;
+use rustbus::params::Param;
 use rustbus::wire::marshal::marshal;
 
 const MESSAGE_SIZE: usize = 19;
@@ -10,7 +10,7 @@ fn marsh(msg: &rustbus::Message, buf: &mut Vec<u8>) {
     marshal(msg, rustbus::message::ByteOrder::LittleEndian, &[], buf).unwrap();
 }
 
-fn make_rustbus_message() -> rustbus::Message {
+fn make_rustbus_message<'a, 'e>() -> rustbus::Message<'a, 'e> {
     let mut params: Vec<Param> = Vec::new();
 
     let mut dict = DictMap::new();
@@ -479,14 +479,12 @@ fn criterion_benchmark(c: &mut Criterion) {
                 )
                 .unwrap(),
             );
-            let msg = make_rustbus_message();
+            let mut msg = make_rustbus_message();
             let serial = rustbus_con
-                .send_message(rustbus::standard_messages::hello(), None)
-                .unwrap()
-                .serial
+                .send_message(&mut rustbus::standard_messages::hello(), None)
                 .unwrap();
             let _name_resp = rustbus_con.wait_response(serial, None).unwrap();
-            let _serial = rustbus_con.send_message(msg, None).unwrap();
+            let _serial = rustbus_con.send_message(&mut msg, None).unwrap();
         })
     });
     c.bench_function("send_dbusrs", |b| {
