@@ -153,7 +153,7 @@ fn make_dbusrs_message() -> dbus::Message {
         .into_iter(),
     );
 
-    let array = dbus::arg::Array::new(vec![
+    let array = vec![
         0xFFFFFFFFFFFFFFFFu64,
         0xFFFFFFFFFFFFFFFFu64,
         0xFFFFFFFFFFFFFFFFu64,
@@ -169,7 +169,7 @@ fn make_dbusrs_message() -> dbus::Message {
         0xFFFFFFFFFFFFFFFFu64,
         0xFFFFFFFFFFFFFFFFu64,
         0xFFFFFFFFFFFFFFFFu64,
-    ]);
+    ];
 
     for _ in 0..MESSAGE_SIZE {
         msg = msg.append3(
@@ -177,7 +177,7 @@ fn make_dbusrs_message() -> dbus::Message {
             0xFFFFFFFFFFFFFFFFu64,
             (0xFFFFFFFFFFFFFFFFu64, "TesttestTesttest"),
         );
-        msg = msg.append2(dict.clone(), array.clone());
+        msg = msg.append2(&dict, &array);
     }
     msg
 }
@@ -410,7 +410,9 @@ fn criterion_benchmark(c: &mut Criterion) {
             let msg = make_rustbus_message();
             let serial = rustbus_con
                 .send_message(rustbus::standard_messages::hello(), None)
-                .unwrap().serial.unwrap();
+                .unwrap()
+                .serial
+                .unwrap();
             let _name_resp = rustbus_con.wait_response(serial, None).unwrap();
             let _serial = rustbus_con.send_message(msg, None).unwrap();
         })
