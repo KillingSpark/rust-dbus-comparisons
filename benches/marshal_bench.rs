@@ -135,6 +135,70 @@ fn make_dbus_message_parser_message() -> dbus_message_parser::Message {
     signal
 }
 
+fn make_dbus_pure_message() -> (dbus_pure::proto::MessageHeader<'static>, dbus_pure::proto::Variant<'static>) {
+    let header = dbus_pure::proto::MessageHeader {
+        r#type: dbus_pure::proto::MessageType::Signal {
+            interface: "io.killing.spark".into(),
+            member: "TestSignal".into(),
+            path: dbus_pure::proto::ObjectPath("/io/killing/spark".into()),
+        },
+        flags: dbus_pure::proto::message_flags::NO_REPLY_EXPECTED,
+        body_len: 0,
+        serial: 0,
+        fields: (&[][..]).into(),
+    };
+
+    let dict = dbus_pure::proto::Variant::Array {
+        element_signature: dbus_pure::proto::Signature::DictEntry {
+            key: Box::new(dbus_pure::proto::Signature::String),
+            value: Box::new(dbus_pure::proto::Signature::I32),
+        },
+        elements: vec![
+            dbus_pure::proto::Variant::DictEntry {
+                key: Box::new(dbus_pure::proto::Variant::String("A".into())).into(),
+                value: Box::new(dbus_pure::proto::Variant::I32(1234567i32)).into(),
+            },
+            dbus_pure::proto::Variant::DictEntry {
+                key: Box::new(dbus_pure::proto::Variant::String("B".into())).into(),
+                value: Box::new(dbus_pure::proto::Variant::I32(1234567i32)).into(),
+            },
+            dbus_pure::proto::Variant::DictEntry {
+                key: Box::new(dbus_pure::proto::Variant::String("C".into())).into(),
+                value: Box::new(dbus_pure::proto::Variant::I32(1234567i32)).into(),
+            },
+            dbus_pure::proto::Variant::DictEntry {
+                key: Box::new(dbus_pure::proto::Variant::String("D".into())).into(),
+                value: Box::new(dbus_pure::proto::Variant::I32(1234567i32)).into(),
+            },
+            dbus_pure::proto::Variant::DictEntry {
+                key: Box::new(dbus_pure::proto::Variant::String("E".into())).into(),
+                value: Box::new(dbus_pure::proto::Variant::I32(1234567i32)).into(),
+            },
+        ].into(),
+    };
+
+    let array = dbus_pure::proto::Variant::ArrayU64((&[0xFFFFFFFFFFFFFFFFu64; 15][..]).into());
+
+    let mut elements = vec![];
+
+    for _ in 0..MESSAGE_SIZE {
+        elements.push(dbus_pure::proto::Variant::U64(0xFFFFFFFFFFFFFFFFu64));
+        elements.push(dbus_pure::proto::Variant::String("TesttestTesttest".into()));
+        elements.push(dbus_pure::proto::Variant::Struct {
+            fields: vec![
+                dbus_pure::proto::Variant::U64(0xFFFFFFFFFFFFFFFFu64),
+                dbus_pure::proto::Variant::String("TesttestTesttest".into()),
+            ].into(),
+        });
+        elements.push(dict.clone());
+        elements.push(array.clone());
+    }
+
+    let body = dbus_pure::proto::Variant::Tuple { elements: elements.into() };
+
+    (header, body)
+}
+
 fn make_dbusrs_message() -> dbus::Message {
     let mut msg = dbus::message::Message::signal(
         &dbus::strings::Path::from("/io/killing/spark"),
@@ -377,6 +441,14 @@ fn criterion_benchmark(c: &mut Criterion) {
             return signal;
         })
     });
+    c.bench_function("marshal_dbus_pure", |b| {
+        b.iter(|| {
+            let (mut header, body) = make_dbus_pure_message();
+            let mut buf = Vec::new();
+            dbus_pure::proto::serialize_message(&mut header, Some(&body), &mut buf, dbus_pure::proto::Endianness::Little).unwrap();
+            return (header, body);
+        })
+    });
     c.bench_function("marshal_zvariant", |b| {
         b.iter(|| {
             let body = make_zvariant_message();
@@ -430,6 +502,18 @@ fn criterion_benchmark(c: &mut Criterion) {
             let conn = dbus_bytestream::connection::Connection::connect_session().unwrap();
             let msg = make_dbus_bytestream_message();
             conn.send(msg).unwrap();
+        })
+    });
+    c.bench_function("send_dbus_pure", |b| {
+        b.iter(|| {
+            let connection =
+                dbus_pure::Connection::new(
+                    dbus_pure::BusPath::System,
+                    dbus_pure::SaslAuthType::Uid,
+                ).unwrap();
+            let mut dbus_client = dbus_pure::Client::new(connection).unwrap();
+            let (mut header, body) = make_dbus_pure_message();
+            let _ = dbus_client.send(&mut header, Some(&body)).unwrap();
         })
     });
     // currently this does a lot of println so it is not a fair comparison
