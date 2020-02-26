@@ -21,7 +21,9 @@ The Marshal + Send benchmark is not performed for zvariant because the zbus libr
 which hamper performance unfairly. The dbus-message-parser does not provide any means of sending messages.
 
 ## Current results
-To replicate these results just run: cargo bench. That will run all benchmarks.
+I am running this on an older AMD Cpu (/proc/cpuinfo says: AMD FX(tm)-6300 Six-Core Processor). Your values might vary a bit.
+
+To replicate these results just run: `cargo bench`. That will run all benchmarks.
 
 | Library             | Marshal                                 | Marshal + Send                          |
 |---------------------|-----------------------------------------|-----------------------------------------|
