@@ -4,8 +4,6 @@ use rustbus::params::DictMap;
 use rustbus::params::Param;
 use rustbus::wire::marshal::marshal;
 
-const MESSAGE_SIZE: usize = 19;
-
 fn marsh(msg: &rustbus::Message, buf: &mut Vec<u8>) {
     marshal(msg, rustbus::message::ByteOrder::LittleEndian, &[], buf).unwrap();
 }
@@ -22,6 +20,8 @@ struct MessageParts {
 
     dict: std::collections::HashMap<String, i32>,
     array: Vec<u64>,
+
+    repeat: usize,
 }
 
 fn make_rustbus_message<'a, 'e>(parts: &'a MessageParts, send_it: bool) {
@@ -52,7 +52,7 @@ fn make_rustbus_message<'a, 'e>(parts: &'a MessageParts, send_it: bool) {
 
     let array: Param = Param::Container(Container::ArrayRef(&arr));
 
-    for _ in 0..MESSAGE_SIZE {
+    for _ in 0..parts.repeat {
         params.push(parts.string1.as_str().into());
         params.push(parts.int1.into());
         params
@@ -116,7 +116,7 @@ fn make_dbus_message_parser_message(parts: &MessageParts, send_it: bool) {
         "t".to_owned(),
     );
 
-    for _ in 0..MESSAGE_SIZE {
+    for _ in 0..parts.repeat {
         signal.add_value(dbus_message_parser::Value::Uint64(parts.int1));
         signal.add_value(dbus_message_parser::Value::String(parts.string1.clone()));
         signal.add_value(dbus_message_parser::Value::Struct(vec![
@@ -168,7 +168,7 @@ fn make_dbus_pure_message(parts: &MessageParts, send_it: bool) {
 
     let mut elements = vec![];
 
-    for _ in 0..MESSAGE_SIZE {
+    for _ in 0..parts.repeat {
         elements.push(dbus_pure::proto::Variant::U64(parts.int1));
         elements.push(dbus_pure::proto::Variant::String(
             parts.string1.as_str().into(),
@@ -215,7 +215,7 @@ fn make_dbusrs_message(parts: &MessageParts, send_it: bool) {
 
     let dict = dbus::arg::Dict::new(parts.dict.iter().map(|(k, v)| (k, v)));
 
-    for _ in 0..MESSAGE_SIZE {
+    for _ in 0..parts.repeat {
         msg = msg.append3(&parts.string1, parts.int1, (parts.int2, &parts.string2));
         msg = msg.append2(&dict, &parts.array);
     }
@@ -242,7 +242,7 @@ fn make_zvariant_message(parts: &MessageParts, send_it: bool) {
     struct_field = struct_field.add_field(parts.int2);
     struct_field = struct_field.add_field(parts.string2.as_str());
 
-    for _ in 0..MESSAGE_SIZE {
+    for _ in 0..parts.repeat {
         body = body.add_field(parts.string1.as_str());
         body = body.add_field(parts.int1);
         body = body.add_field(struct_field.clone());
@@ -303,7 +303,7 @@ fn make_dbus_bytestream_message(parts: &MessageParts, send_it: bool) {
         signature: dbus_serialize::types::Signature("ts".to_owned()),
     };
 
-    for _ in 0..MESSAGE_SIZE {
+    for _ in 0..parts.repeat {
         msg = msg.add_arg(&parts.string1);
         msg = msg.add_arg(&parts.int1);
         msg = msg.add_arg(&strct);
@@ -322,7 +322,7 @@ fn make_dbus_bytestream_message(parts: &MessageParts, send_it: bool) {
     }
 }
 
-fn criterion_benchmark(c: &mut Criterion) {
+fn make_mixed_message() -> MessageParts {
     let mut dict = std::collections::HashMap::new();
     dict.insert("A".to_owned(), 1234567i32);
     dict.insert("B".to_owned(), 1234567i32);
@@ -330,7 +330,7 @@ fn criterion_benchmark(c: &mut Criterion) {
     dict.insert("D".to_owned(), 1234567i32);
     dict.insert("E".to_owned(), 1234567i32);
 
-    let parts = MessageParts {
+    MessageParts {
         string1: "Testtest".to_owned(),
         string2: "TesttestTestest".to_owned(),
         int1: 0xFFFFFFFFFFFFFFFFu64,
@@ -357,68 +357,101 @@ fn criterion_benchmark(c: &mut Criterion) {
         interface: "io.killing.spark".into(),
         member: "TestSignal".into(),
         object: "/io/killing/spark".into(),
-    };
+        repeat: 19,
+    }
+}
+fn make_big_array_message() -> MessageParts {
+    let mut dict = std::collections::HashMap::new();
+    dict.insert("A".to_owned(), 1234567i32);
+    let mut array = Vec::new();
+    array.resize(1024, 0u64);
 
+    MessageParts {
+        string1: "Testtest".to_owned(),
+        string2: "TesttestTestest".to_owned(),
+        int1: 0xFFFFFFFFFFFFFFFFu64,
+        int2: 0xFFFFFFFFFFFFFFFFu64,
+
+        array,
+        dict,
+        interface: "io.killing.spark".into(),
+        member: "TestSignal".into(),
+        object: "/io/killing/spark".into(),
+        repeat: 1,
+    }
+}
+
+fn run_marshal_benches(group_name: &str, c: &mut Criterion, parts: &MessageParts) {
+    let mut group = c.benchmark_group(group_name);
+    group.bench_function("marshal_rustbus", |b| {
+        b.iter(|| {
+            make_rustbus_message(parts, false);
+        })
+    });
+    group.bench_function("marshal_dbusrs", |b| {
+        b.iter(|| {
+            make_dbusrs_message(parts, false);
+        })
+    });
+    group.bench_function("marshal_dbus_bytestream", |b| {
+        b.iter(|| {
+            make_dbus_bytestream_message(parts, false);
+        })
+    });
+    group.bench_function("marshal_dbus_msg_parser", |b| {
+        b.iter(|| {
+            make_dbus_message_parser_message(parts, false);
+        })
+    });
+    group.bench_function("marshal_dbus_pure", |b| {
+        b.iter(|| {
+            make_dbus_pure_message(parts, false);
+        })
+    });
+    group.bench_function("marshal_zvariant", |b| {
+        b.iter(|| {
+            make_zvariant_message(parts, false);
+        })
+    });
+    group.finish();
+}
+
+fn criterion_benchmark(c: &mut Criterion) {
     //
     // This tests only marshalling speed
     // I think that libdbus and by that dbus-rs marshal values as they are added
     // so just creating the message is equivalent to create+marshal in rustbus?
     //
-    c.bench_function("marshal_rustbus", |b| {
-        b.iter(|| {
-            make_rustbus_message(&parts, false);
-        })
-    });
-    c.bench_function("marshal_dbusrs", |b| {
-        b.iter(|| {
-            make_dbusrs_message(&parts, false);
-        })
-    });
-    c.bench_function("marshal_dbus_bytestream", |b| {
-        b.iter(|| {
-            make_dbus_bytestream_message(&parts, false);
-        })
-    });
-    c.bench_function("marshal_dbus_msg_parser", |b| {
-        b.iter(|| {
-            make_dbus_message_parser_message(&parts, false);
-        })
-    });
-    c.bench_function("marshal_dbus_pure", |b| {
-        b.iter(|| {
-            make_dbus_pure_message(&parts, false);
-        })
-    });
-    c.bench_function("marshal_zvariant", |b| {
-        b.iter(|| {
-            make_zvariant_message(&parts, false);
-        })
-    });
-
+    let mixed_parts = make_mixed_message();
+    run_marshal_benches("MarshalMixed", c, &mixed_parts);
+    let big_array_parts = make_big_array_message();
+    run_marshal_benches("MarshalBigArray", c, &big_array_parts);
+    
+    let mut group = c.benchmark_group("Sending");
     //
     // This tests the flow of:
     // 1. Connect to the session bus (which needs a hello message, which is implicit for dbus-rs)
     // 2. Create a signal message
     // 3. Send the signal to the bus
     //
-    c.bench_function("send_rustbus", |b| {
+    group.bench_function("send_rustbus", |b| {
         b.iter(|| {
-            make_rustbus_message(&parts, true);
+            make_rustbus_message(&mixed_parts, true);
         })
     });
-    c.bench_function("send_dbusrs", |b| {
+    group.bench_function("send_dbusrs", |b| {
         b.iter(|| {
-            make_dbusrs_message(&parts, true);
+            make_dbusrs_message(&mixed_parts, true);
         })
     });
-    c.bench_function("send_dbus_bytestream", |b| {
+    group.bench_function("send_dbus_bytestream", |b| {
         b.iter(|| {
-            make_dbus_bytestream_message(&parts, true);
+            make_dbus_bytestream_message(&mixed_parts, true);
         })
     });
-    c.bench_function("send_dbus_pure", |b| {
+    group.bench_function("send_dbus_pure", |b| {
         b.iter(|| {
-            make_dbus_pure_message(&parts, true);
+            make_dbus_pure_message(&mixed_parts, true);
         })
     });
     // currently this does a lot of println so it is not a fair comparison
@@ -438,6 +471,8 @@ fn criterion_benchmark(c: &mut Criterion) {
     //            .is_err());
     //    })
     //});
+
+    group.finish();
 }
 
 criterion_group!(benches, criterion_benchmark);
