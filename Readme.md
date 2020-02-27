@@ -14,7 +14,8 @@ Note that I am the author of rustbus, but of course I am trying to be as objecti
 Some benchmarks exist. I plan to add equivalent ones for the missing libs, and more kinds of benchmarks.
 
 ## The benchmarks
-1. Marshal: Build a signal message and marshal it
+1. MarshalMix: Build a signal message with mixed params and marshal it
+1. MarshalBigArray: Build a signal message with a big u64 array and marshal it
 1. Marshal + Send: Connect to the sessionbus, build a signal and send it to the bus
 
 The Marshal + Send benchmark is not performed for zvariant because the zbus library currently uses a lot of println!() 
