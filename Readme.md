@@ -23,23 +23,15 @@ which hamper performance unfairly. The dbus-message-parser does not provide any 
 ## Current results
 I am running this on an older AMD Cpu (/proc/cpuinfo says: AMD FX(tm)-6300 Six-Core Processor). Your values might vary a bit.
 
-To replicate these results just run: `cargo bench`. That will run all benchmarks.
+To replicate these results just run: `cargo bench`. That will run all benchmarks. Alternatively you can rerun the benchmarks with more samples to get 
+more reliable results. I used these parameters on the AMD CPU: `target/release/deps/marshal_bench-79fa1eab77a57d63 --nresamples 1000 --sample-size 1000 --bench`.
 
 | Library             | Marshal                                 | Marshal + Send                          |
 |---------------------|-----------------------------------------|-----------------------------------------|
-| dbus-bytestream     | time:   [64.859 us 65.127 us 65.439 us] | time:   [462.18 us 469.83 us 478.73 us] |
-| rustbus             | time:   [69.894 us 69.970 us 70.048 us] | time:   [548.01 us 572.15 us 598.81 us] |
-| zvariant            | time:   [77.969 us 78.156 us 78.354 us] |                                         |
-| dbus-pure           | time:   [101.80 us 102.22 us 102.73 us] | time:   [563.60 us 570.37 us 577.78 us] |
-| dbus-message-parser | time:   [171.56 us 172.28 us 173.10 us] |                                         |
-| dbus-rs             | time:   [499.33 us 502.18 us 505.45 us] | time:   [1.2374 ms 1.2951 ms 1.3533 ms] |
+| rustbus             | time:   [49.464 us 49.547 us 49.638 us] | time:   [477.34 us 478.94 us 480.64 us] |
+| dbus-bytestream     | time:   [58.500 us 58.573 us 58.659 us] | time:   [401.24 us 403.00 us 404.86 us] |
+| zvariant            | time:   [77.499 us 77.575 us 77.648 us  |                                         |
+| dbus-pure           | time:   [95.952 us 96.030 us 96.105 us] | time:   [563.08 us 564.72 us 566.35 us] |
+| dbus-message-parser | time:   [159.77 us 159.89 us 160.01 us] |                                         |
+| dbus-rs             | time:   [452.14 us 452.30 us 452.45 us] | time:   [923.50 us 926.74 us 930.26 us] |
 
-Results on a mobile Intel cpu (/proc/cpuinfo says: Intel(R) Pentium(R) 3556U @ 1.70GHz)
-| Library             | Marshal                                 | Marshal + Send                          |
-|---------------------|-----------------------------------------|-----------------------------------------|
-| zvariant            | time:   [92.436 us 93.289 us 94.121 us] |                                         |
-| dbus-bytestream     | time:   [93.544 us 93.586 us 93.650 us] | time:   [985.33 us 988.87 us 992.29 us] |
-| rustbus             | time:   [95.913 us 96.014 us 96.145 us] | time:   [1.0043 ms 1.0136 ms 1.0212 ms] |
-| dbus-pure           | time:   [113.36 us 113.75 us 114.27 us] | time:   [1.2606 ms 1.2741 ms 1.2884 ms] |
-| dbus-message-parser | time:   [223.25 us 223.35 us 223.55 us] |                                         |
-| dbus-rs             | time:   [686.15 us 688.88 us 692.73 us] | time:   [1.5581 ms 1.5659 ms 1.5763 ms] |
