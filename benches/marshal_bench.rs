@@ -379,7 +379,7 @@ fn criterion_benchmark(c: &mut Criterion) {
             make_dbus_bytestream_message(&parts, false);
         })
     });
-    c.bench_function("marshal_dbus_message_parser", |b| {
+    c.bench_function("marshal_dbus_msg_parser", |b| {
         b.iter(|| {
             make_dbus_message_parser_message(&parts, false);
         })
