@@ -19,7 +19,8 @@ struct MessageParts {
     int2: u64,
 
     dict: std::collections::HashMap<String, i32>,
-    array: Vec<u64>,
+    int_array: Vec<u64>,
+    string_array: Vec<String>,
 
     repeat: usize,
 }
@@ -35,8 +36,8 @@ fn make_rustbus_message<'a, 'e>(parts: &'a MessageParts, send_it: bool) {
     use std::convert::TryFrom;
     let dict: Param = Container::try_from(dict).unwrap().into();
 
-    let arr: Vec<Param> = parts
-        .array
+    let intarr: Vec<Param> = parts
+        .int_array
         .iter()
         .copied()
         .map(|i| {
@@ -44,13 +45,27 @@ fn make_rustbus_message<'a, 'e>(parts: &'a MessageParts, send_it: bool) {
             x
         })
         .collect();
-    let sig = arr[0].sig();
-    let arr = rustbus::params::Array {
-        values: arr,
+    let sig = intarr[0].sig();
+    let intarr = rustbus::params::Array {
+        values: intarr,
         element_sig: sig,
     };
+    let intarray: Param = Param::Container(Container::ArrayRef(&intarr));
 
-    let array: Param = Param::Container(Container::ArrayRef(&arr));
+    let stringarr: Vec<Param> = parts
+        .string_array
+        .iter()
+        .map(|i| {
+            let x: Param = i.as_str().into();
+            x
+        })
+        .collect();
+    let sig = stringarr[0].sig();
+    let stringarr = rustbus::params::Array {
+        values: stringarr,
+        element_sig: sig,
+    };
+    let stringarray: Param = Param::Container(Container::ArrayRef(&stringarr));
 
     for _ in 0..parts.repeat {
         params.push(parts.string1.as_str().into());
@@ -58,7 +73,8 @@ fn make_rustbus_message<'a, 'e>(parts: &'a MessageParts, send_it: bool) {
         params
             .push(Container::Struct(vec![parts.string2.as_str().into(), parts.int2.into()]).into());
         params.push(dict.clone());
-        params.push(array.clone());
+        params.push(stringarray.clone());
+        params.push(intarray.clone());
     }
 
     let mut msg = rustbus::message_builder::MessageBuilder::new()
@@ -108,12 +124,21 @@ fn make_dbus_message_parser_message(parts: &MessageParts, send_it: bool) {
 
     let array = dbus_message_parser::Value::Array(
         parts
-            .array
+            .int_array
             .iter()
             .copied()
             .map(|i| dbus_message_parser::Value::Uint64(i))
             .collect(),
         "t".to_owned(),
+    );
+    let stringarray = dbus_message_parser::Value::Array(
+        parts
+            .string_array
+            .iter()
+            .cloned()
+            .map(|i| dbus_message_parser::Value::String(i))
+            .collect(),
+        "s".to_owned(),
     );
 
     for _ in 0..parts.repeat {
@@ -125,6 +150,7 @@ fn make_dbus_message_parser_message(parts: &MessageParts, send_it: bool) {
         ]));
         signal.add_value(dict.clone());
         signal.add_value(array.clone());
+        signal.add_value(stringarray.clone());
     }
     if send_it {
         // no send implemented
@@ -164,7 +190,16 @@ fn make_dbus_pure_message(parts: &MessageParts, send_it: bool) {
         elements: dict_content.into(),
     };
 
-    let array = dbus_pure::proto::Variant::ArrayU64((&parts.array).into());
+    let array = dbus_pure::proto::Variant::ArrayU64((&parts.int_array).into());
+    let strs = parts
+        .string_array
+        .iter()
+        .map(|s| dbus_pure::proto::Variant::String(s.as_str().into()))
+        .collect::<Vec<_>>();
+    let strarray = dbus_pure::proto::Variant::Array {
+        elements: strs.into(),
+        element_signature: dbus_pure::proto::Signature::String,
+    };
 
     let mut elements = vec![];
 
@@ -182,6 +217,7 @@ fn make_dbus_pure_message(parts: &MessageParts, send_it: bool) {
         });
         elements.push(dict.clone());
         elements.push(array.clone());
+        elements.push(strarray.clone());
     }
 
     let body = dbus_pure::proto::Variant::Tuple {
@@ -217,7 +253,8 @@ fn make_dbusrs_message(parts: &MessageParts, send_it: bool) {
 
     for _ in 0..parts.repeat {
         msg = msg.append3(&parts.string1, parts.int1, (parts.int2, &parts.string2));
-        msg = msg.append2(&dict, &parts.array);
+        msg = msg.append2(&dict, &parts.int_array);
+        msg = msg.append2(&dict, &parts.string_array);
     }
 
     if send_it {
@@ -237,7 +274,8 @@ fn make_zvariant_message(parts: &MessageParts, send_it: bool) {
     use std::convert::TryFrom;
     let dict_arr = zvariant::Array::try_from(dict).unwrap();
 
-    let array = zvariant::Array::from(parts.array.clone());
+    let intarray = zvariant::Array::from(parts.int_array.clone());
+    let strarray = zvariant::Array::from(parts.string_array.clone());
 
     struct_field = struct_field.add_field(parts.int2);
     struct_field = struct_field.add_field(parts.string2.as_str());
@@ -248,7 +286,8 @@ fn make_zvariant_message(parts: &MessageParts, send_it: bool) {
         body = body.add_field(struct_field.clone());
         // TODO is this really the most efficient way?
         body = body.add_field(dict_arr.clone());
-        body = body.add_field(array.clone());
+        body = body.add_field(intarray.clone());
+        body = body.add_field(strarray.clone());
     }
 
     if send_it {
@@ -283,11 +322,19 @@ fn make_dbus_bytestream_message(parts: &MessageParts, send_it: bool) {
         })
         .collect();
 
-    let array: Vec<_> = parts
-        .array
+    let int_array: Vec<_> = parts
+        .int_array
         .iter()
         .map(|i| {
             dbus_serialize::types::Value::BasicValue(dbus_serialize::types::BasicValue::Uint64(*i))
+        })
+        .collect();
+    let string_array: Vec<_> = parts
+        .string_array
+        .iter()
+        .cloned()
+        .map(|i| {
+            dbus_serialize::types::Value::BasicValue(dbus_serialize::types::BasicValue::String(i))
         })
         .collect();
 
@@ -308,7 +355,8 @@ fn make_dbus_bytestream_message(parts: &MessageParts, send_it: bool) {
         msg = msg.add_arg(&parts.int1);
         msg = msg.add_arg(&strct);
         msg = msg.add_arg(&map);
-        msg = msg.add_arg(&array);
+        msg = msg.add_arg(&int_array);
+        msg = msg.add_arg(&string_array);
     }
 
     if send_it {
@@ -336,7 +384,7 @@ fn make_mixed_message() -> MessageParts {
         int1: 0xFFFFFFFFFFFFFFFFu64,
         int2: 0xFFFFFFFFFFFFFFFFu64,
 
-        array: vec![
+        int_array: vec![
             0xFFFFFFFFFFFFFFFFu64,
             0xFFFFFFFFFFFFFFFFu64,
             0xFFFFFFFFFFFFFFFFu64,
@@ -353,18 +401,19 @@ fn make_mixed_message() -> MessageParts {
             0xFFFFFFFFFFFFFFFFu64,
             0xFFFFFFFFFFFFFFFFu64,
         ],
+        string_array: vec!["".into()],
         dict,
         interface: "io.killing.spark".into(),
         member: "TestSignal".into(),
         object: "/io/killing/spark".into(),
-        repeat: 19,
+        repeat: 10,
     }
 }
 fn make_big_array_message() -> MessageParts {
     let mut dict = std::collections::HashMap::new();
     dict.insert("A".to_owned(), 1234567i32);
-    let mut array = Vec::new();
-    array.resize(1024, 0u64);
+    let mut int_array = Vec::new();
+    int_array.resize(1024, 0u64);
 
     MessageParts {
         string1: "Testtest".to_owned(),
@@ -372,7 +421,34 @@ fn make_big_array_message() -> MessageParts {
         int1: 0xFFFFFFFFFFFFFFFFu64,
         int2: 0xFFFFFFFFFFFFFFFFu64,
 
-        array,
+        int_array,
+        string_array: vec!["".into()],
+        dict,
+        interface: "io.killing.spark".into(),
+        member: "TestSignal".into(),
+        object: "/io/killing/spark".into(),
+        repeat: 1,
+    }
+}
+fn make_big_string_array_message() -> MessageParts {
+    let mut dict = std::collections::HashMap::new();
+    dict.insert("A".to_owned(), 1234567i32);
+    let mut string_array = Vec::new();
+    for idx in 0..1024 {
+        string_array.push(format!(
+            "{}{}{}{}{}{}{}{}{}{}{}{}",
+            idx, idx, idx, idx, idx, idx, idx, idx, idx, idx, idx, idx
+        ))
+    }
+
+    MessageParts {
+        string1: "Testtest".to_owned(),
+        string2: "TesttestTestest".to_owned(),
+        int1: 0xFFFFFFFFFFFFFFFFu64,
+        int2: 0xFFFFFFFFFFFFFFFFu64,
+
+        string_array,
+        int_array: vec![0],
         dict,
         interface: "io.killing.spark".into(),
         member: "TestSignal".into(),
@@ -426,7 +502,8 @@ fn criterion_benchmark(c: &mut Criterion) {
     run_marshal_benches("MarshalMixed", c, &mixed_parts);
     let big_array_parts = make_big_array_message();
     run_marshal_benches("MarshalBigArray", c, &big_array_parts);
-    
+    let big_str_array_parts = make_big_string_array_message();
+    run_marshal_benches("MarshalBigStrArray", c, &big_str_array_parts);
     let mut group = c.benchmark_group("Sending");
     //
     // This tests the flow of:
