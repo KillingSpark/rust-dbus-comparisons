@@ -46,11 +46,11 @@ fn make_rustbus_message<'a, 'e>(parts: &'a MessageParts, send_it: bool) {
         })
         .collect();
     let sig = intarr[0].sig();
-    let intarr = rustbus::params::Array {
-        values: intarr,
+    let intarr = rustbus::params::ArrayRef {
+        values: &intarr,
         element_sig: sig,
     };
-    let intarray: Param = Param::Container(Container::ArrayRef(&intarr));
+    let intarray: Param = Param::Container(Container::ArrayRef(intarr));
 
     let stringarr: Vec<Param> = parts
         .string_array
@@ -61,11 +61,11 @@ fn make_rustbus_message<'a, 'e>(parts: &'a MessageParts, send_it: bool) {
         })
         .collect();
     let sig = stringarr[0].sig();
-    let stringarr = rustbus::params::Array {
-        values: stringarr,
+    let stringarr = rustbus::params::ArrayRef {
+        values: &stringarr,
         element_sig: sig,
     };
-    let stringarray: Param = Param::Container(Container::ArrayRef(&stringarr));
+    let stringarray: Param = Param::Container(Container::ArrayRef(stringarr));
 
     for _ in 0..parts.repeat {
         params.push(parts.string1.as_str().into());
