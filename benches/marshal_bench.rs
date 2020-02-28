@@ -56,7 +56,7 @@ fn make_rustbus_message<'a, 'e>(parts: &'a MessageParts, send_it: bool) {
         params.push(parts.string1.as_str().into());
         params.push(parts.int1.into());
         params
-            .push(Container::Struct(vec![parts.string2.as_str().into(), parts.int2.into()]).into());
+            .push(Container::Struct(vec![parts.int2.into(), parts.string2.as_str().into()]).into());
         params.push(dict.clone());
         params.push(array.clone());
     }
@@ -117,8 +117,8 @@ fn make_dbus_message_parser_message(parts: &MessageParts, send_it: bool) {
     );
 
     for _ in 0..parts.repeat {
-        signal.add_value(dbus_message_parser::Value::Uint64(parts.int1));
         signal.add_value(dbus_message_parser::Value::String(parts.string1.clone()));
+        signal.add_value(dbus_message_parser::Value::Uint64(parts.int1));
         signal.add_value(dbus_message_parser::Value::Struct(vec![
             dbus_message_parser::Value::Uint64(parts.int2),
             dbus_message_parser::Value::String(parts.string2.clone()),
@@ -147,12 +147,18 @@ fn make_dbus_pure_message(parts: &MessageParts, send_it: bool) {
         fields: (&[][..]).into(),
     };
 
-    let dict_content: Vec<_> =
-        parts.dict.iter()
-        .map(|(k, v)| (dbus_pure::proto::Variant::String(k.as_str().into()), dbus_pure::proto::Variant::I32(*v)))
+    let dict_content: Vec<_> = parts
+        .dict
+        .iter()
+        .map(|(k, v)| {
+            (
+                dbus_pure::proto::Variant::String(k.as_str().into()),
+                dbus_pure::proto::Variant::I32(*v),
+            )
+        })
         .collect();
-    let dict_content: Vec<_> =
-        dict_content.iter()
+    let dict_content: Vec<_> = dict_content
+        .iter()
         .map(|(k, v)| dbus_pure::proto::Variant::DictEntry {
             key: k.into(),
             value: v.into(),
@@ -171,14 +177,14 @@ fn make_dbus_pure_message(parts: &MessageParts, send_it: bool) {
     let mut elements = vec![];
 
     for _ in 0..parts.repeat {
-        elements.push(dbus_pure::proto::Variant::U64(parts.int1));
         elements.push(dbus_pure::proto::Variant::String(
             parts.string1.as_str().into(),
         ));
+        elements.push(dbus_pure::proto::Variant::U64(parts.int1));
         elements.push(dbus_pure::proto::Variant::Struct {
             fields: vec![
-                dbus_pure::proto::Variant::U64(0xFFFFFFFFFFFFFFFFu64),
-                dbus_pure::proto::Variant::String("TesttestTesttest".into()),
+                dbus_pure::proto::Variant::U64(parts.int2),
+                dbus_pure::proto::Variant::String(parts.string2.as_str().into()),
             ]
             .into(),
         });
@@ -428,7 +434,7 @@ fn criterion_benchmark(c: &mut Criterion) {
     run_marshal_benches("MarshalMixed", c, &mixed_parts);
     let big_array_parts = make_big_array_message();
     run_marshal_benches("MarshalBigArray", c, &big_array_parts);
-    
+
     let mut group = c.benchmark_group("Sending");
     //
     // This tests the flow of:
