@@ -147,15 +147,17 @@ fn make_dbus_pure_message(parts: &MessageParts, send_it: bool) {
         fields: (&[][..]).into(),
     };
 
-    let dict_content: Vec<dbus_pure::proto::Variant> = parts
-        .dict
-        .iter()
+    let dict_content: Vec<_> =
+        parts.dict.iter()
+        .map(|(k, v)| (dbus_pure::proto::Variant::String(k.as_str().into()), dbus_pure::proto::Variant::I32(*v)))
+        .collect();
+    let dict_content: Vec<_> =
+        dict_content.iter()
         .map(|(k, v)| dbus_pure::proto::Variant::DictEntry {
-            key: Box::new(dbus_pure::proto::Variant::String(k.as_str().into())).into(),
-            value: Box::new(dbus_pure::proto::Variant::I32(*v)).into(),
+            key: k.into(),
+            value: v.into(),
         })
         .collect();
-
     let dict = dbus_pure::proto::Variant::Array {
         element_signature: dbus_pure::proto::Signature::DictEntry {
             key: Box::new(dbus_pure::proto::Signature::String),
