@@ -510,12 +510,8 @@ fn criterion_benchmark(c: &mut Criterion) {
     run_marshal_benches("MarshalMixed", c, &mixed_parts);
     let big_array_parts = make_big_array_message();
     run_marshal_benches("MarshalBigArray", c, &big_array_parts);
-<<<<<<< HEAD
     let big_str_array_parts = make_big_string_array_message();
     run_marshal_benches("MarshalBigStrArray", c, &big_str_array_parts);
-=======
-
->>>>>>> fa8847bc709e0b0ee6b1405ca698252a035c93d3
     let mut group = c.benchmark_group("Sending");
     //
     // This tests the flow of:
