@@ -275,38 +275,34 @@ fn make_dbusrs_message(parts: &MessageParts, send_it: bool) {
 }
 
 fn make_zvariant_message(parts: &MessageParts, send_it: bool) {
-    let mut body = zvariant::Structure::new();
-    let mut struct_field = zvariant::Structure::new();
+    let struct_field = (&parts.dict,
+                        &parts.int_array,
+                        &parts.string_array,
+                        parts.int2,
+                        &parts.string2);
 
-    let dict = zvariant::Dict::from(parts.dict.clone());
-    use std::convert::TryFrom;
-    let dict_arr = zvariant::Array::try_from(dict).unwrap();
-
-    let intarray = zvariant::Array::from(parts.int_array.clone());
-    let strarray = zvariant::Array::from(parts.string_array.clone());
-
-    struct_field = struct_field.add_field(parts.int2);
-    struct_field = struct_field.add_field(parts.string2.as_str());
+    let mut elements = vec![];
 
     for _ in 0..parts.repeat {
-        body = body.add_field(parts.string1.as_str());
-        body = body.add_field(parts.int1);
-        body = body.add_field(struct_field.clone());
-        // TODO is this really the most efficient way?
-        body = body.add_field(dict_arr.clone());
-        body = body.add_field(intarray.clone());
-        body = body.add_field(strarray.clone());
+        let element = (parts.string1.as_str(),
+                       parts.int1,
+                       &struct_field,
+                       &parts.dict,
+                       &parts.int_array,
+                       &parts.string_array);
+        elements.push(element);
     }
 
     if send_it {
         // no send implemented
     } else {
         let msg = zbus::Message::method(
+            None,
             Some(&parts.interface),
             &parts.object,
             Some(&parts.interface),
             &parts.member,
-            Some(body),
+            &elements,
         )
         .unwrap();
         black_box(msg);
