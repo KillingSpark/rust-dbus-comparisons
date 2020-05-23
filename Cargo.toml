@@ -21,8 +21,7 @@ dbus-pure = {git = "https://github.com/Arnavion/dbus-pure", version = "0.1.0"}
 dbus-message-parser = "1.0"
 bytes = "0.5.3"
 
-dbus-native = {path = "../dbus-rs/dbus-native"}
-
+dbus-native = {git = "https://github.com/diwic/dbus-rs"}
 
 [dev-dependencies]
 criterion = "0.3"
