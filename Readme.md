@@ -2,8 +2,8 @@
 This repo tries to give an overview over the landscape of the the different dbus implementations that exists in the rust ecosystem.
 
 1. https://github.com/KillingSpark/rustbus
-1. https://github.com/diwic/dbus-rs/dbus (bindings to C library)
-1. https://github.com/diwic/dbus-rs/dbus-native
+1. https://github.com/diwic/dbus-rs/ (bindings to C library)
+1. https://github.com/diwic/dbus-rs/tree/master/dbus-native
 1. https://gitlab.freedesktop.org/zeenix/zbus/
 1. https://github.com/Arnavion/dbus-pure
 1. https://github.com/srwalter/dbus-bytestream
