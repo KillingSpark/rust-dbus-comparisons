@@ -70,7 +70,27 @@ fn make_dbus_native_message(parts: &MessageParts, send_it: bool) {
     msg.set_body(body);
 
     if send_it {
-        todo!()
+        let addr = dbus_native::address::read_session_address().unwrap();
+        let stream = dbus_native::address::connect_blocking(&addr).unwrap();
+
+        let mut reader = std::io::BufReader::new(&stream);
+        let mut writer = &stream;
+        assert!(!dbus_native::authentication::Authentication::blocking(&mut reader, &mut writer, false).unwrap());
+        writer.flush().unwrap();
+
+        let hellomsg = dbus_native::message::get_hello_message()
+            .marshal(std::num::NonZeroU32::new(1u32).unwrap(), false).unwrap();
+        use std::io::{Write};
+        writer.write_all(&hellomsg).unwrap();
+        writer.flush().unwrap();
+
+        let mut mr = dbus_native::message::MessageReader::new();
+        let reply = mr.block_until_next_message(&mut reader).unwrap();
+        let reply = dbus_native::message::Message::demarshal(&reply).unwrap().unwrap();
+        let _our_id = reply.read_body().iter().next().unwrap().unwrap().parse().unwrap();
+
+        let buf = msg.marshal(std::num::NonZeroU32::new(2u32).unwrap(), false).unwrap();
+        black_box(&buf);
     } else {
         let buf = msg.marshal(std::num::NonZeroU32::new(1u32).unwrap(), false).unwrap();
         black_box(&buf);
@@ -514,11 +534,6 @@ fn make_big_string_array_message() -> MessageParts {
 
 fn run_marshal_benches(group_name: &str, c: &mut Criterion, parts: &MessageParts) {
     let mut group = c.benchmark_group(group_name);
-    group.bench_function("marshal_dbus_native", |b| {
-        b.iter(|| {
-            make_dbus_native_message(parts, false);
-        })
-    });
     group.bench_function("marshal_rustbus", |b| {
         b.iter(|| {
             make_rustbus_message(parts, false);
@@ -527,6 +542,11 @@ fn run_marshal_benches(group_name: &str, c: &mut Criterion, parts: &MessageParts
     group.bench_function("marshal_dbusrs", |b| {
         b.iter(|| {
             make_dbusrs_message(parts, false);
+        })
+    });
+    group.bench_function("marshal_dbus_native", |b| {
+        b.iter(|| {
+            make_dbus_native_message(parts, false);
         })
     });
     group.bench_function("marshal_dbus_bytestream", |b| {
@@ -579,6 +599,11 @@ fn criterion_benchmark(c: &mut Criterion) {
     group.bench_function("send_dbusrs", |b| {
         b.iter(|| {
             make_dbusrs_message(&mixed_parts, true);
+        })
+    });
+    group.bench_function("send_dbusnative", |b| {
+        b.iter(|| {
+            make_dbus_native_message(&mixed_parts, true);
         })
     });
     group.bench_function("send_dbus_bytestream", |b| {
