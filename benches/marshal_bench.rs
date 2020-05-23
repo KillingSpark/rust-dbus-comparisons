@@ -25,6 +25,58 @@ struct MessageParts {
     repeat: usize,
 }
 
+fn make_dbus_native_message(parts: &MessageParts, send_it: bool) {
+    use dbus_native::marshalled::Marshal;
+    use dbus_native::strings::{StringLike, DBusStr};
+
+    let ksig = <&DBusStr>::default().signature().into();
+    let vsig = i32::default().signature().into();
+    let mut dict = dbus_native::marshalled::DictBuf::new(ksig, vsig).unwrap();
+    for (key, value) in &parts.dict {
+        let key = dbus_native::strings::DBusStr::new(key).unwrap();
+        dict.append(key, value).unwrap();
+    }
+
+    let mut intarr = dbus_native::marshalled::ArrayBuf::new(u64::default().signature()).unwrap();
+    for x in &parts.int_array {
+        intarr.append(x).unwrap();
+    }
+
+    let stringarr = dbus_native::marshalled::ArrayBuf::from_iter(parts.string_array
+        .iter()
+        .map(|x| dbus_native::strings::DBusStr::new(x).unwrap())
+    ).unwrap();
+
+    let string1 = dbus_native::strings::DBusStr::new(&parts.string1).unwrap();
+    let string2 = dbus_native::strings::DBusStr::new(&parts.string2).unwrap();
+    let mut stru = dbus_native::marshalled::MultiBuf::new();
+    stru.append(&parts.int2).unwrap();
+    stru.append(string2).unwrap();
+    let stru = dbus_native::marshalled::StructBuf::new(stru).unwrap();
+    let mut body = dbus_native::marshalled::MultiBuf::new();
+    for _ in 0..parts.repeat {
+        body.append(string1).unwrap();
+        body.append(&parts.int1).unwrap();
+        body.append(&stru).unwrap();
+        body.append(&dict).unwrap();
+        body.append(&stringarr).unwrap();
+        body.append(&intarr).unwrap();
+    }
+
+    let path = dbus_native::strings::ObjectPath::new(&parts.object).unwrap();
+    let interface = dbus_native::strings::InterfaceName::new(&parts.interface).unwrap();
+    let member = dbus_native::strings::MemberName::new(&parts.member).unwrap();
+    let mut msg = dbus_native::message::Message::new_signal(path.into(), interface.into(), member.into()).unwrap();
+    msg.set_body(body);
+
+    if send_it {
+        todo!()
+    } else {
+        let buf = msg.marshal(std::num::NonZeroU32::new(1u32).unwrap(), false).unwrap();
+        black_box(&buf);
+    }
+}
+
 fn make_rustbus_message<'a, 'e>(parts: &'a MessageParts, send_it: bool) {
     let mut params: Vec<Param> = Vec::new();
 
@@ -463,6 +515,11 @@ fn make_big_string_array_message() -> MessageParts {
 
 fn run_marshal_benches(group_name: &str, c: &mut Criterion, parts: &MessageParts) {
     let mut group = c.benchmark_group(group_name);
+    group.bench_function("marshal_dbus_native", |b| {
+        b.iter(|| {
+            make_dbus_native_message(parts, false);
+        })
+    });
     group.bench_function("marshal_rustbus", |b| {
         b.iter(|| {
             make_rustbus_message(parts, false);
