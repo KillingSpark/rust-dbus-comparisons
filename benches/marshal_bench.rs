@@ -313,8 +313,7 @@ fn make_dbusrs_message(parts: &MessageParts, send_it: bool) {
 
     for _ in 0..parts.repeat {
         msg = msg.append3(&parts.string1, parts.int1, (parts.int2, &parts.string2));
-        msg = msg.append2(&dict, &parts.int_array);
-        msg = msg.append2(&dict, &parts.string_array);
+        msg = msg.append3(&dict, &parts.int_array, &parts.string_array);
     }
 
     if send_it {
