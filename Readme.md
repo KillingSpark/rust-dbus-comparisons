@@ -27,14 +27,14 @@ which hamper performance unfairly. The dbus-message-parser does not provide any 
 I am running this on an older AMD Cpu (/proc/cpuinfo says: AMD FX(tm)-6300 Six-Core Processor). Your values might vary a bit.
 
 To replicate these results just run: `cargo bench`. That will run all benchmarks. Alternatively you can rerun the benchmarks with more samples to get
-more reliable results. I used these parameters on the AMD CPU: `target/release/deps/marshal_bench-79fa1eab77a57d63 --nresamples 1000 --sample-size 1000 --bench`.
+more reliable results. I used these parameters on the AMD CPU: `target/release/deps/marshal_bench-221b1ccb00ad3f0a --nresamples 1000 --sample-size 1000 --bench`.
 
-| Library             | MarshalMixed  | MarshalStrArray | MarshalBigArray | Marshal + Send |
-|---------------------|---------------|-----------------|-----------------|----------------|
-| rustbus             | 31.850 us     | 74.924 us       | 53.024 us       | 396.06 us      |
-| dbus-rs             | 268.66 us     | 217.19 us       | 59.626 us       | 768.94 us      |
-| dbus-native         | 11.122 us     | 89.026 us       | 33.219 us       | 302.59 us      |
-| dbus-bytestream     | 32.046 us     | 243.34 us       | 39.105 us       | 357.32 us      |
-| dbus-message-parser | 91.640 us     | 1.2145 us       | 230.10 us       | NaN            |
-| dbus-pure           | 44.125 us     | 261.30 us       | 20.611          | 444.55 us      |
-| zvariant            | Currently NaN | Currently NaN   | Currently NaN   | NaN            |
+| Library             | MarshalMixed | MarshalStrArray | MarshalBigArray | Marshal + Send |
+|---------------------|--------------|-----------------|-----------------|----------------|
+| rustbus             | 31.850 us    | 74.924 us       | 53.024 us       | 396.06 us      |
+| dbus-rs             | 268.66 us    | 217.19 us       | 59.626 us       | 768.94 us      |
+| dbus-native         | 11.122 us    | 89.026 us       | 33.219 us       | 302.59 us      |
+| dbus-bytestream     | 32.046 us    | 243.34 us       | 39.105 us       | 357.32 us      |
+| dbus-message-parser | 91.640 us    | 1.2145 us       | 230.10 us       | NaN            |
+| dbus-pure           | 44.125 us    | 261.30 us       | 20.611 us       | 444.55 us      |
+| zvariant            | 125.36 us    | 203.73 us       | 617.72 us       | NaN            |

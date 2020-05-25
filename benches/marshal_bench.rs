@@ -367,16 +367,16 @@ fn make_zvariant_message(parts: &MessageParts, send_it: bool) {
     if send_it {
         // no send implemented
     } else {
-        //let msg = zbus::Message::method(
-        //    None,
-        //    Some(&parts.interface),
-        //    &parts.object,
-        //    Some(&parts.interface),
-        //    &parts.member,
-        //    &elements,
-        //)
-        //.unwrap();
-        //black_box(msg);
+        let msg = zbus::Message::method(
+            None,
+            Some(&parts.interface),
+            &parts.object,
+            Some(&parts.interface),
+            &parts.member,
+            &elements,
+        )
+        .unwrap();
+        black_box(msg);
     }
 }
 

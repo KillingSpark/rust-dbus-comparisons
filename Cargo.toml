@@ -13,8 +13,8 @@ dbus = "0.8.1"
 dbus-bytestream = "0.1.4"
 dbus-serialize = "0.1.2"
 
-zvariant = {git = "https://gitlab.freedesktop.org/zeenix/zbus", version = "^2"}
-zbus = {git = "https://gitlab.freedesktop.org/zeenix/zbus"}
+zvariant = "^2"
+zbus = {git = "https://gitlab.freedesktop.org/zeenix/zbus", tag = "zvariant_derive-v2.0.0"}
 
 dbus-pure = {git = "https://github.com/Arnavion/dbus-pure", version = "0.1.0"}
 
