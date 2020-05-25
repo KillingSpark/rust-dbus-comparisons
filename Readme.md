@@ -35,6 +35,6 @@ more reliable results. I used these parameters on the AMD CPU: `target/release/d
 | dbus-rs             | 268.66 us    | 217.19 us       | 59.626 us       | 768.94 us      |
 | dbus-native         | 11.122 us    | 89.026 us       | 33.219 us       | 302.59 us      |
 | dbus-bytestream     | 32.046 us    | 243.34 us       | 39.105 us       | 357.32 us      |
-| dbus-message-parser | 91.640 us    | 1.2145 us       | 230.10 us       | NaN            |
+| dbus-message-parser | 91.640 us    | 1.2145 ms       | 230.10 us       | NaN            |
 | dbus-pure           | 44.125 us    | 261.30 us       | 20.611 us       | 444.55 us      |
 | zvariant            | 125.36 us    | 203.73 us       | 617.72 us       | NaN            |
