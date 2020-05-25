@@ -380,6 +380,48 @@ fn make_zvariant_message(parts: &MessageParts, send_it: bool) {
     }
 }
 
+use serde::{Deserialize, Serialize};
+use zvariant_derive::Type;
+
+#[derive(Deserialize, Serialize, Type, PartialEq, Debug, Clone)]
+struct ZVField {
+    string2: String,
+    int2: u64,
+
+    dict: std::collections::HashMap<String, i32>,
+    int_array: Vec<u64>,
+    string_array: Vec<String>,
+}
+
+#[derive(Deserialize, Serialize, Type, PartialEq, Debug)]
+struct ZVStruct {
+    string1: String,
+    int1: u64,
+
+    dict: std::collections::HashMap<String, i32>,
+    int_array: Vec<u64>,
+    string_array: Vec<String>,
+
+    field: ZVField,
+}
+
+fn make_zvariant_derive_message(parts: &MessageParts, elements: &[ZVStruct], send_it: bool) {
+    if send_it {
+        // no send implemented
+    } else {
+        let msg = zbus::Message::method(
+            None,
+            Some(&parts.interface),
+            &parts.object,
+            Some(&parts.interface),
+            &parts.member,
+            &elements,
+        )
+        .unwrap();
+        black_box(msg);
+    }
+}
+
 fn make_dbus_bytestream_message(parts: &MessageParts, send_it: bool) {
     let mut msg =
         dbus_bytestream::message::create_signal(&parts.interface, &parts.member, &parts.object);
@@ -569,6 +611,37 @@ fn run_marshal_benches(group_name: &str, c: &mut Criterion, parts: &MessageParts
             make_zvariant_message(parts, false);
         })
     });
+    group.bench_function("marshal_zvariant_derive", |b| {
+        // We don't necessarily need to clone anything here and keep refs in the structs but let's
+        // avoid all the lifetimes fun, shall we? :) The struct creation is (intentionally) not
+        // part of the benchmark anyway.
+        let field = ZVField {
+            dict: parts.dict.clone(),
+            int_array: parts.int_array.clone(),
+            string_array: parts.string_array.clone(),
+            int2: parts.int2,
+            string2: parts.string2.clone()
+        };
+
+        let mut elements = vec![];
+
+        for _ in 0..parts.repeat {
+            let element = ZVStruct {
+                string1: parts.string1.clone(),
+                int1: parts.int1,
+                field: field.clone(),
+                dict: parts.dict.clone(),
+                int_array: parts.int_array.clone(),
+                string_array: parts.string_array.clone(),
+            };
+            elements.push(element);
+        }
+
+        b.iter(|| {
+            make_zvariant_derive_message(parts, &elements, false);
+        })
+    });
+
     group.finish();
 }
 
