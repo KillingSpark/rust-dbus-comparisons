@@ -1,10 +1,7 @@
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
-use rustbus::params::Container;
-use rustbus::params::DictMap;
-use rustbus::params::Param;
 use rustbus::wire::marshal::marshal;
 
-fn marsh(msg: &rustbus::Message, buf: &mut Vec<u8>) {
+fn marsh(msg: &rustbus::message_builder::OutMessage, buf: &mut Vec<u8>) {
     marshal(msg, rustbus::message::ByteOrder::LittleEndian, &[], buf).unwrap();
 }
 
@@ -27,7 +24,7 @@ struct MessageParts {
 
 fn make_dbus_native_message(parts: &MessageParts, send_it: bool) {
     use dbus_native::marshalled::Marshal;
-    use dbus_native::strings::{StringLike, DBusStr};
+    use dbus_native::strings::{DBusStr, StringLike};
 
     let ksig = <&DBusStr>::default().signature().into();
     let vsig = i32::default().signature().into();
@@ -42,10 +39,13 @@ fn make_dbus_native_message(parts: &MessageParts, send_it: bool) {
         intarr.append(x).unwrap();
     }
 
-    let stringarr = dbus_native::marshalled::ArrayBuf::from_iter(parts.string_array
-        .iter()
-        .map(|x| dbus_native::strings::DBusStr::new(x).unwrap())
-    ).unwrap();
+    let stringarr = dbus_native::marshalled::ArrayBuf::from_iter(
+        parts
+            .string_array
+            .iter()
+            .map(|x| dbus_native::strings::DBusStr::new(x).unwrap()),
+    )
+    .unwrap();
 
     let string1 = dbus_native::strings::DBusStr::new(&parts.string1).unwrap();
     let string2 = dbus_native::strings::DBusStr::new(&parts.string2).unwrap();
@@ -66,7 +66,9 @@ fn make_dbus_native_message(parts: &MessageParts, send_it: bool) {
     let path = dbus_native::strings::ObjectPath::new(&parts.object).unwrap();
     let interface = dbus_native::strings::InterfaceName::new(&parts.interface).unwrap();
     let member = dbus_native::strings::MemberName::new(&parts.member).unwrap();
-    let mut msg = dbus_native::message::Message::new_signal(path.into(), interface.into(), member.into()).unwrap();
+    let mut msg =
+        dbus_native::message::Message::new_signal(path.into(), interface.into(), member.into())
+            .unwrap();
     msg.set_body(body);
 
     if send_it {
@@ -75,88 +77,67 @@ fn make_dbus_native_message(parts: &MessageParts, send_it: bool) {
 
         let mut reader = std::io::BufReader::new(&stream);
         let mut writer = &stream;
-        assert!(!dbus_native::authentication::Authentication::blocking(&mut reader, &mut writer, false).unwrap());
+        assert!(!dbus_native::authentication::Authentication::blocking(
+            &mut reader,
+            &mut writer,
+            false
+        )
+        .unwrap());
         writer.flush().unwrap();
 
         let hellomsg = dbus_native::message::get_hello_message()
-            .marshal(std::num::NonZeroU32::new(1u32).unwrap(), false).unwrap();
-        use std::io::{Write};
+            .marshal(std::num::NonZeroU32::new(1u32).unwrap(), false)
+            .unwrap();
+        use std::io::Write;
         writer.write_all(&hellomsg).unwrap();
         writer.flush().unwrap();
 
         let mut mr = dbus_native::message::MessageReader::new();
         let reply = mr.block_until_next_message(&mut reader).unwrap();
-        let reply = dbus_native::message::Message::demarshal(&reply).unwrap().unwrap();
-        let _our_id = reply.read_body().iter().next().unwrap().unwrap().parse().unwrap();
+        let reply = dbus_native::message::Message::demarshal(&reply)
+            .unwrap()
+            .unwrap();
+        let _our_id = reply
+            .read_body()
+            .iter()
+            .next()
+            .unwrap()
+            .unwrap()
+            .parse()
+            .unwrap();
 
-        let buf = msg.marshal(std::num::NonZeroU32::new(2u32).unwrap(), false).unwrap();
+        let buf = msg
+            .marshal(std::num::NonZeroU32::new(2u32).unwrap(), false)
+            .unwrap();
         black_box(&buf);
     } else {
-        let buf = msg.marshal(std::num::NonZeroU32::new(1u32).unwrap(), false).unwrap();
+        let buf = msg
+            .marshal(std::num::NonZeroU32::new(1u32).unwrap(), false)
+            .unwrap();
         black_box(&buf);
     }
 }
 
 fn make_rustbus_message<'a, 'e>(parts: &'a MessageParts, send_it: bool) {
-    let mut params: Vec<Param> = Vec::new();
-
-    let mut dict = DictMap::new();
-    for (key, value) in &parts.dict {
-        dict.insert(key.as_str().into(), value.into());
-    }
-
-    use std::convert::TryFrom;
-    let dict: Param = Container::try_from(dict).unwrap().into();
-
-    let intarr: Vec<Param> = parts
-        .int_array
-        .iter()
-        .copied()
-        .map(|i| {
-            let x: Param = i.into();
-            x
-        })
-        .collect();
-    let sig = intarr[0].sig();
-    let intarr = rustbus::params::ArrayRef {
-        values: &intarr,
-        element_sig: sig,
-    };
-    let intarray: Param = Param::Container(Container::ArrayRef(intarr));
-
-    let stringarr: Vec<Param> = parts
-        .string_array
-        .iter()
-        .map(|i| {
-            let x: Param = i.as_str().into();
-            x
-        })
-        .collect();
-    let sig = stringarr[0].sig();
-    let stringarr = rustbus::params::ArrayRef {
-        values: &stringarr,
-        element_sig: sig,
-    };
-    let stringarray: Param = Param::Container(Container::ArrayRef(stringarr));
-
-    for _ in 0..parts.repeat {
-        params.push(parts.string1.as_str().into());
-        params.push(parts.int1.into());
-        params
-            .push(Container::Struct(vec![parts.int2.into(), parts.string2.as_str().into()]).into());
-        params.push(dict.clone());
-        params.push(stringarray.clone());
-        params.push(intarray.clone());
-    }
-
     let mut msg = rustbus::message_builder::MessageBuilder::new()
         .signal(
             parts.interface.clone(),
             parts.member.clone(),
             parts.object.clone(),
         )
-        .with_params(params)
         .build();
+
+    for _ in 0..parts.repeat {
+        msg.body.push_param(parts.string1.as_str()).unwrap();
+        msg.body.push_param(parts.int1).unwrap();
+        msg.body
+            .push_param((parts.int2, parts.string2.as_str()))
+            .unwrap();
+        msg.body.push_param(&parts.dict).unwrap();
+        msg.body.push_param(parts.string_array.as_slice()).unwrap();
+        msg.body.push_param(parts.int_array.as_slice()).unwrap();
+    }
+
     msg.serial = Some(1);
 
     if send_it {
@@ -168,10 +149,17 @@ fn make_rustbus_message<'a, 'e>(parts: &'a MessageParts, send_it: bool) {
             .unwrap(),
         );
         let serial = rustbus_con
-            .send_message(&mut rustbus::standard_messages::hello(), None)
+            .send_message(
+                &mut rustbus::standard_messages::hello(),
+                rustbus::client_conn::Timeout::Infinite,
+            )
             .unwrap();
-        let _name_resp = rustbus_con.wait_response(serial, None).unwrap();
-        let _serial = rustbus_con.send_message(&mut msg, None).unwrap();
+        let _name_resp = rustbus_con
+            .wait_response(serial, rustbus::client_conn::Timeout::Infinite)
+            .unwrap();
+        let _serial = rustbus_con
+            .send_message(&mut msg, rustbus::client_conn::Timeout::Infinite)
+            .unwrap();
     } else {
         let mut buf = Vec::new();
         marsh(black_box(&msg), &mut buf);
@@ -346,21 +334,25 @@ fn make_dbusrs_message(parts: &MessageParts, send_it: bool) {
 }
 
 fn make_zvariant_message(parts: &MessageParts, send_it: bool) {
-    let struct_field = (&parts.dict,
-                        &parts.int_array,
-                        &parts.string_array,
-                        parts.int2,
-                        &parts.string2);
+    let struct_field = (
+        &parts.dict,
+        &parts.int_array,
+        &parts.string_array,
+        parts.int2,
+        &parts.string2,
+    );
 
     let mut elements = vec![];
 
     for _ in 0..parts.repeat {
-        let element = (parts.string1.as_str(),
-                       parts.int1,
-                       &struct_field,
-                       &parts.dict,
-                       &parts.int_array,
-                       &parts.string_array);
+        let element = (
+            parts.string1.as_str(),
+            parts.int1,
+            &struct_field,
+            &parts.dict,
+            &parts.int_array,
+            &parts.string_array,
+        );
         elements.push(element);
     }
 
@@ -530,7 +522,7 @@ fn make_big_array_message() -> MessageParts {
     let mut dict = std::collections::HashMap::new();
     dict.insert("A".to_owned(), 1234567i32);
     let mut int_array = Vec::new();
-    int_array.resize(1024, 0u64);
+    int_array.resize(1024 * 10, 0u64);
 
     MessageParts {
         string1: "Testtest".to_owned(),
@@ -551,7 +543,7 @@ fn make_big_string_array_message() -> MessageParts {
     let mut dict = std::collections::HashMap::new();
     dict.insert("A".to_owned(), 1234567i32);
     let mut string_array = Vec::new();
-    for idx in 0..1024 {
+    for idx in 0..1024 * 10 {
         string_array.push(format!(
             "{}{}{}{}{}{}{}{}{}{}{}{}",
             idx, idx, idx, idx, idx, idx, idx, idx, idx, idx, idx, idx
@@ -620,7 +612,7 @@ fn run_marshal_benches(group_name: &str, c: &mut Criterion, parts: &MessageParts
             int_array: parts.int_array.clone(),
             string_array: parts.string_array.clone(),
             int2: parts.int2,
-            string2: parts.string2.clone()
+            string2: parts.string2.clone(),
         };
 
         let mut elements = vec![];

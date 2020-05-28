@@ -6,7 +6,7 @@ use rustbus::params::DictMap;
 use rustbus::params::Param;
 use rustbus::wire::marshal::marshal;
 
-fn marsh(msg: &rustbus::Message, buf: &mut Vec<u8>) {
+fn marsh(msg: &rustbus::message_builder::OutMessage, buf: &mut Vec<u8>) {
     marshal(msg, rustbus::message::ByteOrder::LittleEndian, &[], buf).unwrap();
 }
 
@@ -85,8 +85,8 @@ fn make_rustbus_message<'a, 'e>(parts: &'a MessageParts) -> Vec<u8> {
             parts.member.clone(),
             parts.object.clone(),
         )
-        .with_params(params)
         .build();
+    msg.body.push_params(&params).unwrap();
     msg.serial = Some(1);
 
     let mut buf = Vec::new();
