@@ -135,7 +135,11 @@ fn make_rustbus_message<'a, 'e>(parts: &'a MessageParts, send_it: bool) {
             .unwrap();
         msg.body.push_param(&parts.dict).unwrap();
         msg.body.push_param(parts.string_array.as_slice()).unwrap();
-        msg.body.push_param(parts.int_array.as_slice()).unwrap();
+        msg.body
+            .push_param(rustbus::wire::marshal_trait::OptimizedMarshal(
+                parts.int_array.as_slice(),
+            ))
+            .unwrap();
     }
 
     msg.serial = Some(1);

@@ -90,7 +90,7 @@ mod tests {
                 parts.object.clone(),
             )
             .build();
-        msg.body.push_params(&params).unwrap();
+        msg.body.push_old_params(&params).unwrap();
         msg.serial = Some(1);
 
         let mut buf = Vec::new();
