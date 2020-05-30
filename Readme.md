@@ -31,7 +31,7 @@ more reliable results. I used these parameters on the AMD CPU: `target/release/d
 
 | Library             | MarshalMixed | MarshalStrArray | MarshalBigArray | Marshal + Send |
 |---------------------|--------------|-----------------|-----------------|----------------|
-| rustbus             | 24.248 us    | 423.70 us       | 289.30 us       | 386.30 us      |
+| rustbus             | 20.699 us    | 428.53 us       | 33.690 us       | 366.71 us      |
 | dbus-rs             | 264.98 us    | 1.9425 ms       | 401.93 us       | 805.32 us      |
 | dbus-native         | 12.056 us    | 1.6035 ms       | 269.50 us       | 329.44 us      |
 | dbus-bytestream     | 33.572 us    | 2.8231 ms       | 334.11 us       | 398.90 us      |
