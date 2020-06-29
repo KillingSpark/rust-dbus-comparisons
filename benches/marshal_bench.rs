@@ -59,8 +59,8 @@ fn make_dbus_native_message(parts: &MessageParts, send_it: bool) {
         body.append(&parts.int1).unwrap();
         body.append(&stru).unwrap();
         body.append(&dict).unwrap();
-        body.append(&stringarr).unwrap();
         body.append(&intarr).unwrap();
+        body.append(&stringarr).unwrap();
     }
 
     let path = dbus_native::strings::ObjectPath::new(&parts.object).unwrap();
@@ -134,12 +134,12 @@ fn make_rustbus_message<'a, 'e>(parts: &'a MessageParts, send_it: bool) {
             .push_param((parts.int2, parts.string2.as_str()))
             .unwrap();
         msg.body.push_param(&parts.dict).unwrap();
-        msg.body.push_param(parts.string_array.as_slice()).unwrap();
         msg.body
             .push_param(rustbus::wire::marshal_trait::OptimizedMarshal(
                 parts.int_array.as_slice(),
             ))
             .unwrap();
+        msg.body.push_param(parts.string_array.as_slice()).unwrap();
     }
 
     msg.serial = Some(1);

@@ -79,8 +79,8 @@ mod tests {
                 Container::Struct(vec![parts.string2.as_str().into(), parts.int2.into()]).into(),
             );
             params.push(dict.clone());
-            params.push(stringarray.clone());
             params.push(intarray.clone());
+            params.push(stringarray.clone());
         }
 
         let mut msg = rustbus::message_builder::MessageBuilder::new()
