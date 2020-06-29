@@ -339,9 +339,6 @@ fn make_dbusrs_message(parts: &MessageParts, send_it: bool) {
 
 fn make_zvariant_message(parts: &MessageParts, send_it: bool) {
     let struct_field = (
-        &parts.dict,
-        &parts.int_array,
-        &parts.string_array,
         parts.int2,
         &parts.string2,
     );
@@ -381,24 +378,18 @@ use zvariant_derive::Type;
 
 #[derive(Deserialize, Serialize, Type, PartialEq, Debug, Clone)]
 struct ZVField {
-    string2: String,
     int2: u64,
-
-    dict: std::collections::HashMap<String, i32>,
-    int_array: Vec<u64>,
-    string_array: Vec<String>,
+    string2: String,
 }
 
 #[derive(Deserialize, Serialize, Type, PartialEq, Debug)]
 struct ZVStruct {
     string1: String,
     int1: u64,
-
+    field: ZVField,
     dict: std::collections::HashMap<String, i32>,
     int_array: Vec<u64>,
     string_array: Vec<String>,
-
-    field: ZVField,
 }
 
 fn make_zvariant_derive_message(parts: &MessageParts, elements: &[ZVStruct], send_it: bool) {
@@ -477,7 +468,6 @@ fn make_dbus_bytestream_message(parts: &MessageParts, send_it: bool) {
         conn.send(msg).unwrap();
     } else {
         let mut buf = Vec::new();
-
         use dbus_bytestream::marshal::Marshal;
         msg.dbus_encode(&mut buf);
     }
@@ -612,9 +602,6 @@ fn run_marshal_benches(group_name: &str, c: &mut Criterion, parts: &MessageParts
         // avoid all the lifetimes fun, shall we? :) The struct creation is (intentionally) not
         // part of the benchmark anyway.
         let field = ZVField {
-            dict: parts.dict.clone(),
-            int_array: parts.int_array.clone(),
-            string_array: parts.string_array.clone(),
             int2: parts.int2,
             string2: parts.string2.clone(),
         };
