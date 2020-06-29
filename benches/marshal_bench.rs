@@ -1,10 +1,6 @@
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
 use rustbus::wire::marshal::marshal;
 
-fn marsh(msg: &rustbus::message_builder::OutMessage, buf: &mut Vec<u8>) {
-    marshal(msg, rustbus::message::ByteOrder::LittleEndian, &[], buf).unwrap();
-}
-
 struct MessageParts {
     interface: String,
     member: String,
@@ -166,7 +162,8 @@ fn make_rustbus_message<'a, 'e>(parts: &'a MessageParts, send_it: bool) {
             .unwrap();
     } else {
         let mut buf = Vec::new();
-        marsh(black_box(&msg), &mut buf);
+        marshal(&msg, rustbus::message::ByteOrder::LittleEndian, &[], &mut buf).unwrap();
+        black_box(buf);
     }
 }
 
@@ -221,6 +218,7 @@ fn make_dbus_message_parser_message(parts: &MessageParts, send_it: bool) {
     } else {
         let mut buffer = bytes::BytesMut::new();
         signal.encode(&mut buffer).unwrap();
+        black_box(buffer);
     }
 }
 
@@ -311,6 +309,7 @@ fn make_dbus_pure_message(parts: &MessageParts, send_it: bool) {
             dbus_pure::proto::Endianness::Little,
         )
         .unwrap();
+        black_box(buf);
     }
 }
 
@@ -334,6 +333,7 @@ fn make_dbusrs_message(parts: &MessageParts, send_it: bool) {
         conn.send(msg).unwrap();
     } else {
         // no need to marshal, that happend while building
+        black_box(msg);
     }
 }
 
@@ -470,6 +470,7 @@ fn make_dbus_bytestream_message(parts: &MessageParts, send_it: bool) {
         let mut buf = Vec::new();
         use dbus_bytestream::marshal::Marshal;
         msg.dbus_encode(&mut buf);
+        black_box(buf);
     }
 }
 
