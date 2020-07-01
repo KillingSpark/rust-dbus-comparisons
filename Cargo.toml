@@ -18,6 +18,7 @@ zvariant_derive = { git = "https://gitlab.freedesktop.org/zeenix/zbus", rev="8c2
 serde = { version = "1.0", features = [ "derive" ] }
 zbus = {git = "https://gitlab.freedesktop.org/zeenix/zbus", rev="8c2d6232"}
 
+dbus-core = {git = "https://github.com/tmiasko/dbus-core", rev = "7d8889483e759080c057c8c2a9d866eb506e7104"}
 dbus-pure = {git = "https://github.com/Arnavion/dbus-pure", version = "0.1.0"}
 
 dbus-message-parser = "1.0"

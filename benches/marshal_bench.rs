@@ -170,6 +170,33 @@ fn make_rustbus_message<'a, 'e>(parts: &'a MessageParts, send_it: bool) {
     }
 }
 
+fn make_dbus_core_message(parts: &MessageParts, send_it: bool) {
+    use dbus_core::codec::Struct;
+    use dbus_core::message::{MessageBuf, Signal};
+
+    let mut buf = MessageBuf::from(Signal {
+        path: &parts.object,
+        interface: &parts.interface,
+        member: &parts.member,
+    });
+    for _ in 0..parts.repeat {
+        buf.encode(&parts.string1);
+        buf.encode(&parts.int1);
+        buf.encode(&Struct((&parts.int2, &parts.string2)));
+        buf.encode(&parts.dict);
+        buf.encode(&parts.int_array);
+        buf.encode(&parts.string_array);
+    }
+    if send_it {
+        unimplemented!();
+    } else {
+        buf.set_serial(1);
+        let msg = buf.into_message().unwrap();
+        black_box(msg.header_bytes());
+        black_box(msg.body_bytes());
+    }
+}
+
 fn make_dbus_message_parser_message(parts: &MessageParts, send_it: bool) {
     let mut signal =
         dbus_message_parser::Message::signal(&parts.object, &parts.interface, &parts.member);
@@ -590,6 +617,11 @@ fn run_marshal_benches(group_name: &str, c: &mut Criterion, parts: &MessageParts
     group.bench_function("marshal_dbus_bytestream", |b| {
         b.iter(|| {
             make_dbus_bytestream_message(parts, false);
+        })
+    });
+    group.bench_function("marshal_dbus_core", |b| {
+        b.iter(|| {
+            make_dbus_core_message(parts, false);
         })
     });
     group.bench_function("marshal_dbus_msg_parser", |b| {
