@@ -1,10 +1,6 @@
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
 use rustbus::wire::marshal::marshal;
 
-fn marsh(msg: &rustbus::message_builder::OutMessage, buf: &mut Vec<u8>) {
-    marshal(msg, rustbus::message::ByteOrder::LittleEndian, &[], buf).unwrap();
-}
-
 struct MessageParts {
     interface: String,
     member: String,
@@ -59,8 +55,8 @@ fn make_dbus_native_message(parts: &MessageParts, send_it: bool) {
         body.append(&parts.int1).unwrap();
         body.append(&stru).unwrap();
         body.append(&dict).unwrap();
-        body.append(&stringarr).unwrap();
         body.append(&intarr).unwrap();
+        body.append(&stringarr).unwrap();
     }
 
     let path = dbus_native::strings::ObjectPath::new(&parts.object).unwrap();
@@ -134,12 +130,12 @@ fn make_rustbus_message<'a, 'e>(parts: &'a MessageParts, send_it: bool) {
             .push_param((parts.int2, parts.string2.as_str()))
             .unwrap();
         msg.body.push_param(&parts.dict).unwrap();
-        msg.body.push_param(parts.string_array.as_slice()).unwrap();
         msg.body
             .push_param(rustbus::wire::marshal_trait::OptimizedMarshal(
                 parts.int_array.as_slice(),
             ))
             .unwrap();
+        msg.body.push_param(parts.string_array.as_slice()).unwrap();
     }
 
     msg.serial = Some(1);
@@ -166,7 +162,8 @@ fn make_rustbus_message<'a, 'e>(parts: &'a MessageParts, send_it: bool) {
             .unwrap();
     } else {
         let mut buf = Vec::new();
-        marsh(black_box(&msg), &mut buf);
+        marshal(&msg, rustbus::message::ByteOrder::LittleEndian, &[], &mut buf).unwrap();
+        black_box(buf);
     }
 }
 
@@ -221,6 +218,7 @@ fn make_dbus_message_parser_message(parts: &MessageParts, send_it: bool) {
     } else {
         let mut buffer = bytes::BytesMut::new();
         signal.encode(&mut buffer).unwrap();
+        black_box(buffer);
     }
 }
 
@@ -311,6 +309,7 @@ fn make_dbus_pure_message(parts: &MessageParts, send_it: bool) {
             dbus_pure::proto::Endianness::Little,
         )
         .unwrap();
+        black_box(buf);
     }
 }
 
@@ -334,14 +333,12 @@ fn make_dbusrs_message(parts: &MessageParts, send_it: bool) {
         conn.send(msg).unwrap();
     } else {
         // no need to marshal, that happend while building
+        black_box(msg);
     }
 }
 
 fn make_zvariant_message(parts: &MessageParts, send_it: bool) {
     let struct_field = (
-        &parts.dict,
-        &parts.int_array,
-        &parts.string_array,
         parts.int2,
         &parts.string2,
     );
@@ -381,24 +378,18 @@ use zvariant_derive::Type;
 
 #[derive(Deserialize, Serialize, Type, PartialEq, Debug, Clone)]
 struct ZVField {
-    string2: String,
     int2: u64,
-
-    dict: std::collections::HashMap<String, i32>,
-    int_array: Vec<u64>,
-    string_array: Vec<String>,
+    string2: String,
 }
 
 #[derive(Deserialize, Serialize, Type, PartialEq, Debug)]
 struct ZVStruct {
     string1: String,
     int1: u64,
-
+    field: ZVField,
     dict: std::collections::HashMap<String, i32>,
     int_array: Vec<u64>,
     string_array: Vec<String>,
-
-    field: ZVField,
 }
 
 fn make_zvariant_derive_message(parts: &MessageParts, elements: &[ZVStruct], send_it: bool) {
@@ -477,9 +468,9 @@ fn make_dbus_bytestream_message(parts: &MessageParts, send_it: bool) {
         conn.send(msg).unwrap();
     } else {
         let mut buf = Vec::new();
-
         use dbus_bytestream::marshal::Marshal;
         msg.dbus_encode(&mut buf);
+        black_box(buf);
     }
 }
 
@@ -612,9 +603,6 @@ fn run_marshal_benches(group_name: &str, c: &mut Criterion, parts: &MessageParts
         // avoid all the lifetimes fun, shall we? :) The struct creation is (intentionally) not
         // part of the benchmark anyway.
         let field = ZVField {
-            dict: parts.dict.clone(),
-            int_array: parts.int_array.clone(),
-            string_array: parts.string_array.clone(),
             int2: parts.int2,
             string2: parts.string2.clone(),
         };
