@@ -31,11 +31,11 @@ more reliable results. I used these parameters on the AMD CPU: `target/release/d
 
 | Library             | MarshalMixed | MarshalStrArray | MarshalBigArray | Marshal + Send |
 |---------------------|--------------|-----------------|-----------------|----------------|
-| rustbus             | 20.699 us    | 428.53 us       | 33.690 us       | 366.71 us      |
-| dbus-rs             | 264.98 us    | 1.9425 ms       | 401.93 us       | 805.32 us      |
-| dbus-native         | 12.056 us    | 1.6035 ms       | 269.50 us       | 329.44 us      |
-| dbus-bytestream     | 33.572 us    | 2.8231 ms       | 334.11 us       | 398.90 us      |
-| dbus-message-parser | 92.560 us    | 15.115 ms       | 2.1936 ms       | NaN            |
-| dbus-pure           | 39.192 us    | 820.21 us       | 92.196 us       | 460.46 us      |
-| zvariant            | 86.469 us    | 4.3949 ms       | 1.0527 ms       | NaN            |
-| zvariant-derive     | 92.644 us    | 4.4312 ms       | 1.0545 ms       | NaN            |
+| rustbus             | 11.405 us    | 179.49 us       | 5.2076 us       | 185.19 us      |
+| dbus-rs             | 165.86 us    | 1382.0 us       | 265.19 us       | 462.27 us      |
+| dbus-native         | 6.3081 us    | 398.83 us       | 222.01 us       | 149.27 us      |
+| dbus-bytestream     | 17.413 us    | 1356.0 us       | 153.00 us       | 182.65 us      |
+| dbus-message-parser | 49.605 us    | 7845.0 us       | 1213.3 us       | NaN            |
+| dbus-pure           | 18.164 us    | 362.68 us       | 52.927 us       | 225.27 us      |
+| zvariant            | 29.552 us    | 1285.3 us       | 308.78 us       | NaN            |
+| zvariant-derive     | 30.668 us    | 1295.5 us       | 316.89 us       | NaN            |
