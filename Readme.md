@@ -8,6 +8,7 @@ This repo tries to give an overview over the landscape of the the different dbus
 1. https://github.com/Arnavion/dbus-pure
 1. https://github.com/srwalter/dbus-bytestream
 1. https://github.com/LinkTed/dbus-message-parser
+1. https://github.com/tmiasko/dbus-core
 
 Note that I am the author of rustbus, but of course I am trying to be as objective as possible here.
 
@@ -35,6 +36,7 @@ more reliable results. I used these parameters on the AMD CPU: `target/release/d
 | dbus-rs             | 165.86 us    | 1382.0 us       | 265.19 us       | 462.27 us      |
 | dbus-native         | 6.3081 us    | 398.83 us       | 222.01 us       | 149.27 us      |
 | dbus-bytestream     | 17.413 us    | 1356.0 us       | 153.00 us       | 182.65 us      |
+| dbus-core           | 9.3962 us    | 314.25 us       | 3.6330 us       | NaN            |
 | dbus-message-parser | 49.605 us    | 7845.0 us       | 1213.3 us       | NaN            |
 | dbus-pure           | 18.164 us    | 362.68 us       | 52.927 us       | 225.27 us      |
 | zvariant            | 29.552 us    | 1285.3 us       | 308.78 us       | NaN            |
