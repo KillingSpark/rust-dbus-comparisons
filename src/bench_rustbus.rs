@@ -1,7 +1,7 @@
-use rustbus::wire::marshal::marshal;
 use crate::MessageParts;
+use rustbus::wire::marshal::marshal;
 
-pub fn make_rustbus_message(parts: &MessageParts, send_it: bool) -> Option<Vec<u8>>{
+pub fn make_rustbus_message(parts: &MessageParts, send_it: bool) -> Option<Vec<u8>> {
     let mut msg = rustbus::message_builder::MessageBuilder::new()
         .signal(
             parts.interface.clone(),
@@ -39,7 +39,7 @@ pub fn make_rustbus_message(parts: &MessageParts, send_it: bool) -> Option<Vec<u
             .unwrap()
             .write_all()
             .unwrap();
-            None
+        None
     } else {
         let mut buf = Vec::new();
         marshal(&msg, 1, &mut buf).unwrap();

@@ -1,6 +1,6 @@
 use super::MessageParts;
 
-pub fn make_dbusrs_message(parts: &MessageParts, send_it: bool) -> Option<dbus::message::Message>{
+pub fn make_dbusrs_message(parts: &MessageParts, send_it: bool) -> Option<dbus::message::Message> {
     let mut msg = dbus::message::Message::signal(
         &dbus::strings::Path::from(&parts.object),
         &dbus::strings::Interface::from(&parts.interface),
