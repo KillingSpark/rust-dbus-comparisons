@@ -43,7 +43,6 @@ pub fn make_rustbus_message(parts: &MessageParts, send_it: bool) -> Option<Vec<u
     } else {
         let mut buf = Vec::new();
         marshal(&msg, 1, &mut buf).unwrap();
-        buf.extend(msg.get_buf());
         Some(buf)
     }
 }
