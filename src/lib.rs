@@ -1,7 +1,38 @@
-//! Nothing in the source
-//!
-//! This is a benchmark repo, all relevant source is in $REPO/benches
+mod bench_dbus_message_parser;
+mod bench_dbus_native;
+mod bench_dbusrs;
+mod bench_rustbus;
+mod bench_dbus_pure;
+mod bench_zvariant;
+mod bench_dbus_bytestream;
+pub use bench_dbus_message_parser::*;
+pub use bench_dbus_native::*;
+pub use bench_dbusrs::*;
+pub use bench_rustbus::*;
+pub use bench_dbus_pure::*;
+pub use bench_zvariant::*;
+pub use bench_dbus_bytestream::*;
 
+
+pub struct MessageParts {
+    pub interface: String,
+    pub member: String,
+    pub object: String,
+
+    pub string1: String,
+    pub string2: String,
+    pub int1: u64,
+    pub int2: u64,
+
+    pub dict: std::collections::HashMap<String, i32>,
+    pub int_array: Vec<u64>,
+    pub string_array: Vec<String>,
+
+    pub repeat: usize,
+}
+
+/*
+// This was meant as a compatibility test but it got cumbersome and uninteresting to maintain
 #[cfg(test)]
 mod tests {
     use rustbus::params::Container;
@@ -406,3 +437,4 @@ mod tests {
         make_and_compare(&array);
     }
 }
+*/

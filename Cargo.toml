@@ -7,24 +7,23 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-rustbus = "0.5.1"
-dbus = "0.8.1"
+rustbus = "0.15.0"
+dbus = "0.9.3"
 
 dbus-bytestream = "0.1.4"
 dbus-serialize = "0.1.2"
 
-zvariant = { git = "https://gitlab.freedesktop.org/zeenix/zbus", rev="8c2d6232" }
-zvariant_derive = { git = "https://gitlab.freedesktop.org/zeenix/zbus", rev="8c2d6232" }
-serde = { version = "1.0", features = [ "derive" ] }
-zbus = {git = "https://gitlab.freedesktop.org/zeenix/zbus", rev="8c2d6232"}
+serde = "1.0.0"
+zvariant = "2.7.0"
+zvariant_derive = "2.7.0"
+zbus = "1.9.1"
 
-dbus-core = {git = "https://github.com/tmiasko/dbus-core", rev = "7d8889483e759080c057c8c2a9d866eb506e7104"}
-dbus-pure = {git = "https://github.com/Arnavion/dbus-pure", version = "0.1.0"}
+dbus-pure = {git = "https://github.com/Arnavion/dbus-pure", revision = "830b63808ef9139f78b5dd098969e0995573afef"}
 
-dbus-message-parser = "1.0"
-bytes = "0.5.3"
+dbus-message-parser = "4.1.0"
+bytes = "1.0.1"
 
-dbus-native = {git = "https://github.com/diwic/dbus-rs"}
+dbus-native = {git = "https://github.com/diwic/dbus-rs", revision = "0d61670d3e9aa41d855825f8c26244fe1f6a2a2c"}
 
 [dev-dependencies]
 criterion = "0.3"
