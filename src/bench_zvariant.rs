@@ -16,19 +16,22 @@ pub fn make_zvariant_message(parts: &MessageParts, send_it: bool) -> Option<zbus
         );
         elements.push(element);
     }
+    let msg = zbus::Message::signal(
+        None,
+        Some(&parts.interface),
+        &parts.object,
+        &parts.interface,
+        &parts.member,
+        &elements,
+    )
+    .unwrap();
 
     if send_it {
+        let con = zbus::Connection::new_session().unwrap();
+        con.send_message(msg).unwrap();
+        con.flush().unwrap();
         None
     } else {
-        let msg = zbus::Message::method(
-            None,
-            Some(&parts.interface),
-            &parts.object,
-            Some(&parts.interface),
-            &parts.member,
-            &elements,
-        )
-        .unwrap();
         Some(msg)
     }
 }
@@ -57,19 +60,21 @@ pub fn make_zvariant_derive_message(
     elements: &[ZVStruct],
     send_it: bool,
 ) -> Option<zbus::Message> {
+    let msg = zbus::Message::signal(
+        None,
+        Some(&parts.interface),
+        &parts.object,
+        &parts.interface,
+        &parts.member,
+        &elements,
+    )
+    .unwrap();
     if send_it {
-        // no send implemented
+        let con = zbus::Connection::new_session().unwrap();
+        con.send_message(msg).unwrap();
+        con.flush().unwrap();
         None
     } else {
-        let msg = zbus::Message::method(
-            None,
-            Some(&parts.interface),
-            &parts.object,
-            Some(&parts.interface),
-            &parts.member,
-            &elements,
-        )
-        .unwrap();
         Some(msg)
     }
 }

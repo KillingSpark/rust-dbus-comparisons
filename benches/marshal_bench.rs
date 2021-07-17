@@ -212,7 +212,34 @@ fn criterion_benchmark(c: &mut Criterion) {
     });
     group.bench_function("send_zvariant", |b| {
         b.iter(|| {
-            black_box(make_zvariant_message(&&mixed_parts, true));
+            black_box(make_zvariant_message(&mixed_parts, true));
+        })
+    });
+    group.bench_function("send_zvariant_derive", |b| {
+        // We don't necessarily need to clone anything here and keep refs in the structs but let's
+        // avoid all the lifetimes fun, shall we? :) The struct creation is (intentionally) not
+        // part of the benchmark anyway.
+        let field = ZVField {
+            int2: mixed_parts.int2,
+            string2: mixed_parts.string2.clone(),
+        };
+
+        let mut elements = vec![];
+
+        for _ in 0..mixed_parts.repeat {
+            let element = ZVStruct {
+                string1: mixed_parts.string1.clone(),
+                int1: mixed_parts.int1,
+                field: field.clone(),
+                dict: mixed_parts.dict.clone(),
+                int_array: mixed_parts.int_array.clone(),
+                string_array: mixed_parts.string_array.clone(),
+            };
+            elements.push(element);
+        }
+
+        b.iter(|| {
+            black_box(make_zvariant_derive_message(&mixed_parts, &elements, true));
         })
     });
 
