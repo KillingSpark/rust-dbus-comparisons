@@ -8,7 +8,6 @@ This repo tries to give an overview over the landscape of the the different dbus
 1. https://github.com/Arnavion/dbus-pure
 1. https://github.com/srwalter/dbus-bytestream
 1. https://github.com/LinkTed/dbus-message-parser
-1. https://github.com/tmiasko/dbus-core
 
 Note that I am the author of rustbus, but of course I am trying to be as objective as possible here.
 
@@ -21,23 +20,22 @@ Some benchmarks exist. I plan to add equivalent ones for the missing libs, and m
 1. MarshalStrArray: Build a signal message with a big String array and marshal it
 1. Marshal + Send: Connect to the sessionbus, build a signal and send it to the bus
 
-The Marshal + Send benchmark is not performed for zvariant because the zbus library currently uses a lot of println!()
-which hamper performance unfairly. The dbus-message-parser does not provide any means of sending messages.
+The dbus-message-parser does not provide any means of sending messages, so this benchmark is omitted.
 
 ## Current results
 I am running this on a Ryzen 3800X (/proc/cpuinfo says: AMD Ryzen 7 3800X). Your values might vary a bit.
 
-To replicate these results just run: `cargo bench`. That will run all benchmarks. Alternatively you can rerun the benchmarks with more samples to get
-more reliable results. I used these parameters on the AMD CPU: `target/release/deps/marshal_bench-221b1ccb00ad3f0a --nresamples 1000 --sample-size 1000 --bench`.
+I used rust 1.53.0 to run these benchmarks.
+
+To replicate these results just run: `cargo bench`. That will run all benchmarks.
 
 | Library             | MarshalMixed | MarshalStrArray | MarshalBigArray | Marshal + Send |
 |---------------------|--------------|-----------------|-----------------|----------------|
-| rustbus             | 11.405 us    | 179.49 us       | 5.2076 us       | 185.19 us      |
-| dbus-rs             | 165.86 us    | 1382.0 us       | 265.19 us       | 462.27 us      |
-| dbus-native         | 6.3081 us    | 398.83 us       | 222.01 us       | 149.27 us      |
-| dbus-bytestream     | 17.413 us    | 1356.0 us       | 153.00 us       | 182.65 us      |
-| dbus-core           | 9.3962 us    | 314.25 us       | 3.6330 us       | NaN            |
-| dbus-message-parser | 49.605 us    | 7845.0 us       | 1213.3 us       | NaN            |
-| dbus-pure           | 18.164 us    | 362.68 us       | 52.927 us       | 225.27 us      |
-| zvariant            | 29.552 us    | 1285.3 us       | 308.78 us       | NaN            |
-| zvariant-derive     | 30.668 us    | 1295.5 us       | 316.89 us       | NaN            |
+| rustbus             | 7.074 us     | 125.65 us       | 2.8302 us       | 76.774 us      |
+| dbus-rs             | 177.08 us    | 1475.6 us       | 367.50 us       | 268.00 us      |
+| dbus-native         | 5.2846 us    | 335.77 us       | 135.75 us       | 47.112 us      |
+| dbus-bytestream     | 14.387 us    | 1213.3 us       | 166.77 us       | 62.467 us      |
+| dbus-message-parser | 39.111 us    | 4491.1 us       | 784.56 us       | NaN            |
+| dbus-pure           | 16.411 us    | 294.34 us       | 66.035 us       | 58.328 us      |
+| zvariant            | 41.591 us    | 1493.6 us       | 567.61 us       | 117.78 us      |
+| zvariant-derive     | 41.029 us    | 1504.5 us       | 567.79 us       | 119.50 us      |
