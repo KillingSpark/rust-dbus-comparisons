@@ -181,8 +181,8 @@ fn criterion_benchmark(c: &mut Criterion) {
     let mut group = c.benchmark_group("Sending");
     //
     // This tests the flow of:
-    // 1. Connect to the session bus (which needs a hello message, which is implicit for dbus-rs)
-    // 2. Create a signal message
+    // 1. Connect to the session bus (including authentication with the session bus AND the hello message handshake!)
+    // 2. Create and marshal a signal message
     // 3. Send the signal to the bus
     //
     group.bench_function("send_rustbus", |b| {
