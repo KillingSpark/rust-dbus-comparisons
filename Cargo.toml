@@ -7,6 +7,8 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+async-std = "1.9.0"
+async-rustbus = "0.1.1"
 rustbus = "0.15.0"
 dbus = "0.9.3"
 
