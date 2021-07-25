@@ -1,4 +1,5 @@
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
+use dbus_benches::make_async_rustbus_message;
 use dbus_benches::make_dbus_bytestream_message;
 use dbus_benches::make_dbus_message_parser_message;
 use dbus_benches::make_dbus_native_message;
@@ -162,6 +163,11 @@ fn run_marshal_benches(group_name: &str, c: &mut Criterion, parts: &MessageParts
             black_box(make_zvariant_derive_message(parts, &elements, false));
         })
     });
+    group.bench_function("marshal_async_rustbus", |b| {
+        b.iter(|| {
+            black_box(make_async_rustbus_message(parts, false));
+        });
+    });
 
     group.finish();
 }
@@ -240,6 +246,11 @@ fn criterion_benchmark(c: &mut Criterion) {
 
         b.iter(|| {
             black_box(make_zvariant_derive_message(&mixed_parts, &elements, true));
+        })
+    });
+    group.bench_function("send_async_rusbus", |b| {
+        b.iter(|| {
+            black_box(make_async_rustbus_message(&mixed_parts, true));
         })
     });
 

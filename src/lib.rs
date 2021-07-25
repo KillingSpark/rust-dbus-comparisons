@@ -1,3 +1,4 @@
+mod bench_async_rustbus;
 mod bench_dbus_bytestream;
 mod bench_dbus_message_parser;
 mod bench_dbus_native;
@@ -5,6 +6,8 @@ mod bench_dbus_pure;
 mod bench_dbusrs;
 mod bench_rustbus;
 mod bench_zvariant;
+
+pub use bench_async_rustbus::*;
 pub use bench_dbus_bytestream::*;
 pub use bench_dbus_message_parser::*;
 pub use bench_dbus_native::*;
@@ -411,19 +414,12 @@ mod tests {
         let bs = make_dbus_bytestream_message(parts);
         let mp = make_dbus_message_parser_message(parts);
         let dp = make_dbus_pure_message(parts);
+        let ab = make_async_rustbus_message(parts);
 
-        let rb_bs = rb.eq(&bs);
-        let rb_mp = rb.eq(&mp);
-        let rb_dp = rb.eq(&dp);
-
-        let bs_mp = bs.eq(&mp);
-        let bs_dp = bs.eq(&dp);
-
-        let dp_mp = dp.eq(&mp);
-        assert_eq!(
-            [true, true, true, true, true, true],
-            [rb_bs, rb_mp, rb_dp, bs_mp, bs_dp, dp_mp]
-        );
+        assert_eq!(rb, bs);
+        assert_eq!(rb, mp);
+        assert_eq!(rb, dp);
+        assert_eq!(rb, ab);
     }
 
     #[test]
