@@ -28,7 +28,7 @@ bytes = "1.0.1"
 dbus-native = {git = "https://github.com/diwic/dbus-rs", revision = "0d61670d3e9aa41d855825f8c26244fe1f6a2a2c"}
 
 [dev-dependencies]
-criterion = "0.3"
+criterion = "0.3.4"
 
 [[bench]]
 name = "marshal_bench"

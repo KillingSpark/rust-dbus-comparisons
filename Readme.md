@@ -8,6 +8,7 @@ This repo tries to give an overview over the landscape of the the different dbus
 1. https://github.com/Arnavion/dbus-pure
 1. https://github.com/srwalter/dbus-bytestream
 1. https://github.com/LinkTed/dbus-message-parser
+1. https://github.com/cmaves/async-rustbus
 
 Note that I am the author of rustbus, but of course I am trying to be as objective as possible here.
 
@@ -31,11 +32,12 @@ To replicate these results just run: `cargo bench`. That will run all benchmarks
 
 | Library             | MarshalMixed | MarshalStrArray | MarshalBigArray | Marshal + Send |
 |---------------------|--------------|-----------------|-----------------|----------------|
-| rustbus             | 7.074 us     | 125.65 us       | 2.8302 us       | 76.774 us      |
-| dbus-rs             | 177.08 us    | 1475.6 us       | 367.50 us       | 268.00 us      |
-| dbus-native         | 5.2846 us    | 335.77 us       | 135.75 us       | 47.112 us      |
-| dbus-bytestream     | 14.387 us    | 1213.3 us       | 166.77 us       | 62.467 us      |
-| dbus-message-parser | 39.111 us    | 4491.1 us       | 784.56 us       | NaN            |
-| dbus-pure           | 16.411 us    | 294.34 us       | 66.035 us       | 58.328 us      |
-| zvariant            | 41.591 us    | 1493.6 us       | 567.61 us       | 117.78 us      |
-| zvariant-derive     | 41.029 us    | 1504.5 us       | 567.79 us       | 119.50 us      |
+| rustbus             | 4.0474 us    | 123.87 us       | 2.4285 us       | 91.959 us      |
+| dbus-rs             | 175.22 us    | 1428.2 us       | 359.81 us       | 285.19 us      |
+| dbus-native         | 5.2856 us    | 514.51 us       | 129.75 us       | 63.926 us      |
+| dbus-bytestream     | 14.823 us    | 1215.0 us       | 166.74 us       | 74.898 us      |
+| dbus-message-parser | 39.376 us    | 4388.5 us       | 783.96 us       | NaN            |
+| dbus-pure           | 16.677 us    | 609.22 us       | 66.111 us       | 58.089 us      |
+| zvariant            | 41.351 us    | 1515.1 us       | 570.14 us       | 131.65 us      |
+| zvariant-derive     | 41.746 us    | 1496.4 us       | 571.17 us       | 140.48 us      |
+| rustbus-async       | 4.1519 us    | 126.47 us       | 2.4595 us       | 100.62 us      |
