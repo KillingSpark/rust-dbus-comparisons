@@ -248,7 +248,7 @@ fn criterion_benchmark(c: &mut Criterion) {
             black_box(make_zvariant_derive_message(&mixed_parts, &elements, true));
         })
     });
-    group.bench_function("send_async_rusbus", |b| {
+    group.bench_function("send_async_rustbus", |b| {
         b.iter(|| {
             black_box(make_async_rustbus_message(&mixed_parts, true));
         })

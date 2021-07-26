@@ -9,7 +9,7 @@ edition = "2018"
 [dependencies]
 async-std = "1.9.0"
 async-rustbus = "0.1.1"
-rustbus = "0.15.0"
+rustbus = "0.17.0"
 dbus = "0.9.3"
 
 dbus-bytestream = "0.1.4"
