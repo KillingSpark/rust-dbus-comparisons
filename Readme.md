@@ -26,18 +26,18 @@ The dbus-message-parser does not provide any means of sending messages, so this 
 ## Current results
 I am running this on a Ryzen 3800X (/proc/cpuinfo says: AMD Ryzen 7 3800X). Your values might vary a bit.
 
-I used rust 1.53.0 to run these benchmarks.
+I used `rustc 1.65.0 (897e37553 2022-11-02)` to run these benchmarks.
 
 To replicate these results just run: `cargo bench`. That will run all benchmarks.
 
 | Library             | MarshalMixed | MarshalStrArray | MarshalBigArray | Marshal + Send |
 |---------------------|--------------|-----------------|-----------------|----------------|
-| rustbus             | 4.0474 us    | 123.87 us       | 2.4285 us       | 91.959 us      |
-| dbus-rs             | 175.22 us    | 1428.2 us       | 359.81 us       | 285.19 us      |
-| dbus-native         | 5.2856 us    | 514.51 us       | 129.75 us       | 63.926 us      |
-| dbus-bytestream     | 14.823 us    | 1215.0 us       | 166.74 us       | 74.898 us      |
-| dbus-message-parser | 39.376 us    | 4388.5 us       | 783.96 us       | NaN            |
-| dbus-pure           | 16.677 us    | 609.22 us       | 66.111 us       | 58.089 us      |
-| zvariant            | 41.351 us    | 1515.1 us       | 570.14 us       | 131.65 us      |
-| zvariant-derive     | 41.746 us    | 1496.4 us       | 571.17 us       | 140.48 us      |
-| rustbus-async       | 4.1519 us    | 126.47 us       | 2.4595 us       | 100.62 us      |
+| rustbus             | 3.4257 µs    | 94.031 µs       | 2.1689 µs       | 71.926 µs      |
+| dbus-rs             | 168.82 µs    | 1.3286 ms       | 377.54 µs       | 262.12 µs      |
+| dbus-native         | 5.1487 µs    | 551.10 µs       | 123.87 µs       | 49.769 µs      |
+| dbus-bytestream     | 14.002 µs    | 1.1528 ms       | 134.56 µs       | 64.110 µs      |
+| dbus-message-parser | 35.968 µs    | 4.6027 ms       | 756.30 µs       | NaN            |
+| dbus-pure           | 14.657 µs    | 263.60 µs       | 19.066 µs       | 53.806 µs      |
+| zvariant            | 54.555 µs    | 1.0492 ms       | 538.07 µs       | 246.59 µs      |
+| zvariant-derive     | 55.633 µs    | 1.0560 ms       | 545.26 µs       | 245.16 µs      |
+| rustbus-async       | 4.5583 µs    | 145.70 µs       | 2.2329 µs       | 116.30 µs      |
