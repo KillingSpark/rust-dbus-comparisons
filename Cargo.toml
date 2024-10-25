@@ -16,9 +16,7 @@ dbus-bytestream = "0.1.4"
 dbus-serialize = "0.1.2"
 
 serde = "1.0.0"
-zvariant = "3.8.0"
-zvariant_derive = "3.8.0"
-zbus = "3.5.0"
+zbus = "5"
 
 dbus-pure = {git = "https://github.com/Arnavion/dbus-pure", rev = "cd238a268095e560801048332d82c5ec208f4e44"}
 
