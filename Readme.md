@@ -32,12 +32,12 @@ To replicate these results just run: `cargo bench`. That will run all benchmarks
 
 | Library             | MarshalMixed | MarshalStrArray | MarshalBigArray | Marshal + Send |
 |---------------------|--------------|-----------------|-----------------|----------------|
-| rustbus             | 3.4257 µs    | 94.031 µs       | 2.1689 µs       | 71.926 µs      |
-| dbus-rs             | 168.82 µs    | 1.3286 ms       | 377.54 µs       | 262.12 µs      |
-| dbus-native         | 5.1487 µs    | 551.10 µs       | 123.87 µs       | 49.769 µs      |
-| dbus-bytestream     | 14.002 µs    | 1.1528 ms       | 134.56 µs       | 64.110 µs      |
-| dbus-message-parser | 35.968 µs    | 4.6027 ms       | 756.30 µs       | NaN            |
-| dbus-pure           | 14.657 µs    | 263.60 µs       | 19.066 µs       | 53.806 µs      |
-| zvariant            | 54.555 µs    | 1.0492 ms       | 538.07 µs       | 246.59 µs      |
-| zvariant-derive     | 55.633 µs    | 1.0560 ms       | 545.26 µs       | 245.16 µs      |
-| rustbus-async       | 4.5583 µs    | 145.70 µs       | 2.2329 µs       | 116.30 µs      |
+| rustbus             | 3.4257 µs    | 98.394 µs       | 2.1689 µs       | 132.86 µs      |
+| dbus-rs             | 168.82 µs    | 1.3286 ms       | 377.54 µs       | 282.87 µs      |
+| dbus-native         | 3.3086 µs    | 826.04 µs       | 67.291 µs       | 87.377 µs      |
+| dbus-bytestream     | 14.002 µs    | 1.1528 ms       | 150.70 µs       | 112.88 µs      |
+| dbus-message-parser | 35.968 µs    | 4.6027 ms       | 700.71 µs       | NaN            |
+| dbus-pure           | 14.657 µs    | 226.58 µs       | 23.864 µs       | 90.029 µs      |
+| zvariant            | 9.1030 µs    | 202.62 µs       | 47.606 µs       | NaN            |
+| zvariant-derive     | 9.1303 µs    | 203.39 µs       | 47.352 µs       | NaN            |
+| rustbus-async       | 4.5583 µs    | 104.72 µs       | 2.2329 µs       | 168.23 µs      |
