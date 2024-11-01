@@ -16,22 +16,18 @@ pub fn make_zvariant_message(parts: &MessageParts, send_it: bool) -> Option<zbus
         );
         elements.push(element);
     }
-    let sender: Option<&str> = None;
     let msg = zbus::Message::signal(
-        sender,
-        Some(parts.interface.as_str()),
         parts.object.as_str(),
         parts.interface.as_str(),
         parts.member.as_str(),
-        &elements,
     )
+    .unwrap()
+    .build(&elements)
     .unwrap();
 
     if send_it {
-        async_std::task::block_on(async {
-            let con = zbus::Connection::session().await.unwrap();
-            con.send_message(msg).await.unwrap();
-        });
+        let con = zbus::blocking::Connection::session().unwrap();
+        con.send(&msg).unwrap();
         None
     } else {
         Some(msg)
@@ -39,7 +35,7 @@ pub fn make_zvariant_message(parts: &MessageParts, send_it: bool) -> Option<zbus
 }
 
 use serde::{Deserialize, Serialize};
-use zvariant_derive::Type;
+use zbus::zvariant::Type;
 
 #[derive(Deserialize, Serialize, Type, PartialEq, Debug, Clone)]
 pub struct ZVField {
@@ -62,21 +58,17 @@ pub fn make_zvariant_derive_message(
     elements: &[ZVStruct],
     send_it: bool,
 ) -> Option<zbus::Message> {
-    let sender: Option<&str> = None;
     let msg = zbus::Message::signal(
-        sender,
-        Some(parts.interface.as_str()),
         parts.object.as_str(),
         parts.interface.as_str(),
         parts.member.as_str(),
-        &elements,
     )
+    .unwrap()
+    .build(&elements)
     .unwrap();
     if send_it {
-        async_std::task::block_on(async {
-            let con = zbus::Connection::session().await.unwrap();
-            con.send_message(msg).await.unwrap();
-        });
+        let con = zbus::blocking::Connection::session().unwrap();
+        con.send(&msg).unwrap();
         None
     } else {
         Some(msg)
