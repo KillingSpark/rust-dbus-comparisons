@@ -1,9 +1,5 @@
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
 use dbus_benches::make_async_rustbus_message;
-use dbus_benches::make_dbus_bytestream_message;
-use dbus_benches::make_dbus_message_parser_message;
-use dbus_benches::make_dbus_native_message;
-use dbus_benches::make_dbus_pure_message;
 use dbus_benches::make_dbusrs_message;
 use dbus_benches::make_glib_message;
 use dbus_benches::make_rustbus_message;
@@ -112,26 +108,6 @@ fn run_marshal_benches(group_name: &str, c: &mut Criterion, parts: &MessageParts
             black_box(make_dbusrs_message(parts, false));
         })
     });
-    group.bench_function("marshal_dbus_native", |b| {
-        b.iter(|| {
-            black_box(make_dbus_native_message(parts, false));
-        })
-    });
-    group.bench_function("marshal_dbus_bytestream", |b| {
-        b.iter(|| {
-            black_box(make_dbus_bytestream_message(parts, false));
-        })
-    });
-    group.bench_function("marshal_dbus_msg_parser", |b| {
-        b.iter(|| {
-            black_box(make_dbus_message_parser_message(parts, false));
-        })
-    });
-    group.bench_function("marshal_dbus_pure", |b| {
-        b.iter(|| {
-            black_box(make_dbus_pure_message(parts, false));
-        })
-    });
     group.bench_function("marshal_zvariant", |b| {
         b.iter(|| {
             black_box(make_zvariant_message(parts, false));
@@ -205,21 +181,6 @@ fn criterion_benchmark(c: &mut Criterion) {
     group.bench_function("send_dbusrs", |b| {
         b.iter(|| {
             black_box(make_dbusrs_message(&mixed_parts, true));
-        })
-    });
-    group.bench_function("send_dbusnative", |b| {
-        b.iter(|| {
-            black_box(make_dbus_native_message(&mixed_parts, true));
-        })
-    });
-    group.bench_function("send_dbus_bytestream", |b| {
-        b.iter(|| {
-            black_box(make_dbus_bytestream_message(&mixed_parts, true));
-        })
-    });
-    group.bench_function("send_dbus_pure", |b| {
-        b.iter(|| {
-            black_box(make_dbus_pure_message(&mixed_parts, true));
         })
     });
     group.bench_function("send_zvariant", |b| {

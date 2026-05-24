@@ -3,11 +3,7 @@ This repo tries to give an overview over the landscape of the the different dbus
 
 1. https://github.com/KillingSpark/rustbus
 1. https://github.com/diwic/dbus-rs/ (bindings to C library)
-1. https://github.com/diwic/dbus-rs/tree/master/dbus-native
 1. https://github.com/dbus2/zbus/
-1. https://github.com/Arnavion/dbus-pure
-1. https://github.com/srwalter/dbus-bytestream
-1. https://github.com/LinkTed/dbus-message-parser
 1. https://github.com/cmaves/async-rustbus
 1. https://github.com/gtk-rs/gtk-rs-core
 
@@ -35,10 +31,6 @@ To replicate these results just run: `cargo bench`. That will run all benchmarks
 |---------------------|--------------|--------------------|-----------------|----------------|
 | rustbus             | 3.4442 µs    | 98.406 µs          | 2.2243 µs       | 127.45 µs      |
 | dbus-rs             | 169.14 µs    | 1.9275 ms          | 393.13 µs       | 285.30 µs      |
-| dbus-native         | 2.9645 µs    | 272.11 µs          | 45.946 µs       | 81.642 µs      |
-| dbus-bytestream     | 12.875 µs    | 1.1294 ms          | 151.96 µs       | 102.11 µs      |
-| dbus-message-parser | 40.201 µs    | 4.7009 ms          | 792.06 µs       | NaN            |
-| dbus-pure           | 12.905 µs    | 270.84 µs          | 21.077 µs       | 91.391 µs      |
 | zvariant            | 9.5993 µs    | 229.79 µs          | 75.775 µs       | 145.99 µs      |
 | zvariant-derive     | 9.6960 µs    | 231.98 µs          | 79.295 µs       | 147.36 µs      |
 | rustbus-async       | 4.1619 µs    | 104.90 µs          | 2.2733 µs       | 149.61 µs      |
